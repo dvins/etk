@@ -35,6 +35,7 @@ export type ContextAttributes = BaseContextAttributes | Record<string, GetContex
 export type LogLevel = 'debug' | 'error' | 'info' | 'log' | 'verbose' | 'warn';
 
 export interface ILogger extends LoggerService {
+  contextAttributes?: ContextAttributes;
   /**
    * Write a 'debug' level log.
    */

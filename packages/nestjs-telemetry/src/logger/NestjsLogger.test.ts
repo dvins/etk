@@ -4,20 +4,10 @@ import { mockDeep } from 'jest-mock-extended';
 import { ClsService } from 'nestjs-cls';
 import { Logger } from 'winston';
 
-import { LOGGER_CONFIG, LOGGER_PROVIDER } from './logger.constants';
 import { NestjsLogger } from './NestjsLogger';
 import { LoggerConfiguration } from './types';
+import { LOGGER_CONFIG, LOGGER_PROVIDER } from './logger.constants';
 
-
-export const mockedNestjsLogger = {
-  debug: jest.fn(),
-  info: jest.fn(),
-  log: jest.fn(),
-  matchFilePartRegEx: jest.fn(),
-  requestLogger: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-} as unknown as NestjsLogger;
 
 describe('Logger', () => {
   let logger: NestjsLogger;
@@ -34,8 +24,8 @@ describe('Logger', () => {
     contextAttributes: {
       tenantId: true,
       jobId: true,
-      tenantUserId: true,
-      portalId: true,
+      testKey3: true,
+      testKey2: true,
     },
   };
 
@@ -64,7 +54,7 @@ describe('Logger', () => {
         {
           jobId: 'jobId',
           tenantId: 'tenantId',
-          tenantUserId: 'tenantUserId',
+          testKey3: 'testKey3',
         },
         'message',
       ),
@@ -114,7 +104,7 @@ describe('Logger', () => {
   });
 
   it('should log context, get tenantId from AsyncLocalStorage', () => {
-    const globalContext = { portalId: 'portalId-1' };
+    const globalContext = { testKey2: 'testKey2-1' };
     const localStorage = new AsyncLocalStorage();
     const localStorageService = new ClsService<any>(localStorage);
 

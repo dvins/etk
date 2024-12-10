@@ -1,9 +1,8 @@
-import { mockDeep } from 'jest-mock-extended';
 import { Writable } from 'stream';
-import winston, { Logger } from 'winston';
-
+import winston from 'winston';
 import { bindRequest, fixedLength, enrichedJsonFormat } from './utils';
-
+import { mockDeep } from 'jest-mock-extended';
+import type { Logger } from '@nestjs/common';
 
 describe('utils', () => {
   let output = '';
@@ -36,7 +35,7 @@ describe('utils', () => {
 
   it('should create logger', () => {
     const req = {
-      tenantUserId: 'tenantUserId',
+      testKey3: 'testKey3',
     };
     const requestLogger = bindRequest(defaultLogger, req);
 
@@ -52,9 +51,9 @@ describe('utils', () => {
           format: enrichedJsonFormat({
             tenantId: true,
             jobId: true,
-            tenantUserId: true,
-            portalId: true,
-            memberId: true,
+            testKey3: true,
+            testKey2: true,
+            testKey1: true,
           }),
         }),
       ],
@@ -79,11 +78,11 @@ describe('utils', () => {
     });
 
     it('should populate header', () => {
-      testLogger.error('test error', { memberId: '1' });
+      testLogger.error('test error', { testKey1: '1' });
       const logMessage = getLogFromStream();
 
       const dateFromLog = JSON.parse(logMessage).timestamp;
-      const logResult = `{"level":"error","message":"test error","timestamp":"${dateFromLog}","header":{"memberId":"1"}}`;
+      const logResult = `{"level":"error","message":"test error","timestamp":"${dateFromLog}","header":{"testKey1":"1"}}`;
       expect(logMessage).toStrictEqual(logResult);
     });
 
@@ -97,7 +96,7 @@ describe('utils', () => {
     });
 
     it('should stringify error', () => {
-      testLogger.error('test error', { memberId: '1', error: new Error('error message') });
+      testLogger.error('test error', { testKey1: '1', error: new Error('error message') });
       const logMessage = getLogFromStream();
 
       const logData = JSON.parse(logMessage);
@@ -110,7 +109,7 @@ describe('utils', () => {
     });
 
     it('should stringify nested error', () => {
-      testLogger.error('test error', { memberId: '1', foo: { error: new Error('error message') } });
+      testLogger.error('test error', { testKey1: '1', foo: { error: new Error('error message') } });
       const logMessage = getLogFromStream();
 
       const logData = JSON.parse(logMessage);
@@ -141,7 +140,7 @@ describe('utils', () => {
           this.name = this.constructor.name;
         }
       }
-      testLogger.error('test error', { memberId: '1', error: new CustomError('error message') });
+      testLogger.error('test error', { testKey1: '1', error: new CustomError('error message') });
       const logMessage = getLogFromStream();
 
       const logData = JSON.parse(logMessage);

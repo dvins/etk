@@ -1,14 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Injectable, type Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Event } from '@sentry/types';
+import { mockDeep } from 'jest-mock-extended';
 
-import { NestjsLogger } from '../logger';
-import { mockedNestjsLogger } from '../logger/NestjsLogger.test';
 import { SentryService } from './sentry.service';
+import { NestjsLogger, type LoggerConfiguration } from '../logger';
 
 
 describe('SentryService', () => {
   let service: SentryService;
+  let logger: NestjsLogger;
+  const defaultLogger = mockDeep<Logger>({
+    info: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+    apply: jest.fn(),
+    child: () => defaultLogger,
+  } as any);
+
+  const config: LoggerConfiguration = {
+    logLevel: 'log',
+    filename: '',
+    contextAttributes: {
+      tenantId: true,
+      jobId: true,
+      testKey3: true,
+      testKey2: true,
+    },
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,7 +36,7 @@ describe('SentryService', () => {
         SentryService,
         {
           provide: NestjsLogger,
-          useValue: mockedNestjsLogger,
+          useValue: logger,
         },
       ],
     }).compile();

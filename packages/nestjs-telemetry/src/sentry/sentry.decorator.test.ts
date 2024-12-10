@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Injectable, type Logger } from '@nestjs/common';
+import { mockDeep } from 'jest-mock-extended';
 
-import { NestjsLogger } from '../logger';
 import { SentryTransaction } from './sentry.decorator';
-import { mockedNestjsLogger } from '../logger/NestjsLogger.test';
+import { NestjsLogger, type LoggerConfiguration } from '../logger';
+
 
 jest.mock('@sentry/node', () => {
   const original = jest.requireActual('@sentry/node');
@@ -13,7 +14,27 @@ jest.mock('@sentry/node', () => {
   };
 });
 
-describe('Statsig Decorators', () => {
+describe('Sentry Decorators', () => {
+  let logger: NestjsLogger;
+  const defaultLogger = mockDeep<Logger>({
+    info: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+    apply: jest.fn(),
+    child: () => defaultLogger,
+  } as any);
+
+  const config: LoggerConfiguration = {
+    logLevel: 'log',
+    filename: '',
+    contextAttributes: {
+      tenantId: true,
+      jobId: true,
+      testKey3: true,
+      testKey2: true,
+    },
+  };
+
   describe('SentryTransaction Decorator Tests', () => {
     @Injectable()
     class TestService {
@@ -47,7 +68,7 @@ describe('Statsig Decorators', () => {
           TestService,
           {
             provide: NestjsLogger,
-            useValue: mockedNestjsLogger,
+            useValue: logger,
           },
         ],
       }).compile();
@@ -66,7 +87,7 @@ describe('Statsig Decorators', () => {
           TestService,
           {
             provide: NestjsLogger,
-            useValue: mockedNestjsLogger,
+            useValue: logger,
           },
         ],
       }).compile();
@@ -85,7 +106,7 @@ describe('Statsig Decorators', () => {
           TestService,
           {
             provide: NestjsLogger,
-            useValue: mockedNestjsLogger,
+            useValue: logger,
           },
         ],
       }).compile();
