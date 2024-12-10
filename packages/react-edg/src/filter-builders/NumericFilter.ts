@@ -3,12 +3,18 @@ import { createElement } from 'react';
 
 import { BaseFilter } from './BaseFilter';
 
+import type { BaseFilterConstructorArgs } from '@datagrid/types';
 import type { InputNumberProps } from 'antd';
 
 /**
  * NumericFilter class represents a filter builder for numeric values.
  */
 export class NumericFilter extends BaseFilter {
+  constructor(args: BaseFilterConstructorArgs) {
+    super(args);
+    this.operator = args.operator ?? 'in';
+  }
+
   /**
    * Configures the filter to use a NumberInput as component render. Transforms value to number in fromFilterParams and uses IN comparison method.
    * @param props - Optional props to pass to the NumberInput component.
@@ -26,6 +32,6 @@ export class NumericFilter extends BaseFilter {
 
     const fromFilterParams = (value: string) => Number(value);
 
-    return this.useFromFilterParams(fromFilterParams).useInComparison();
+    return this.useFromFilterParams(fromFilterParams);
   }
 }

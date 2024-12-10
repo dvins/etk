@@ -5,7 +5,7 @@ import { isArray, isEmpty, omit, isEqual } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import type { BaseColumn } from '@datagrid/column-builders';
-import type { SorterResult, TableData, TableSorter } from '@datagrid/types';
+import type { DataGridSorterResult, TableData, DataGridSorter } from '@datagrid/types';
 
 type UseDataGridSortingArgs<TData extends TableData> = {
   columnBuilders: BaseColumn<TData>[];
@@ -13,10 +13,10 @@ type UseDataGridSortingArgs<TData extends TableData> = {
 };
 
 type UseDataGridSortingReturn<TData extends TableData> = {
-  sorting: SorterResult<TData>[];
-  defaultSorting: SorterResult<TData>[];
-  querySorting: SorterResult<TData>[];
-  setSorting: (sorting: TableSorter<TData>, onSortingUpdated?: () => void) => void;
+  sorting: DataGridSorterResult<TData>[];
+  defaultSorting: DataGridSorterResult<TData>[];
+  querySorting: DataGridSorterResult<TData>[];
+  setSorting: (sorting: DataGridSorter<TData>, onSortingUpdated?: () => void) => void;
 };
 
 export const useDataGridSorting = <TData extends TableData>({
@@ -30,7 +30,7 @@ export const useDataGridSorting = <TData extends TableData>({
 
   const defaultSorting = useMemo(
     () =>
-      columnBuilders.reduce<SorterResult<TData>[]>((sorter, columnBuilder) => {
+      columnBuilders.reduce<DataGridSorterResult<TData>[]>((sorter, columnBuilder) => {
         const column = columnBuilder.getColumn();
 
         if (!column.defaultSortOrder) {
@@ -42,9 +42,9 @@ export const useDataGridSorting = <TData extends TableData>({
     [],
   );
 
-  const [sorting, setSorting] = useState<SorterResult<TData>[]>(isEmpty(querySorting) ? defaultSorting : querySorting);
+  const [sorting, setSorting] = useState<DataGridSorterResult<TData>[]>(isEmpty(querySorting) ? defaultSorting : querySorting);
 
-  const updateSorting = (newSorting: TableSorter<TData>, onSortingUpdated?: () => void) => {
+  const updateSorting = (newSorting: DataGridSorter<TData>, onSortingUpdated?: () => void) => {
     const sortingArray = isArray(newSorting) ? newSorting : [newSorting];
     // Avoid storing column object in sorting state, important for correct query params resetting
     const mappedSorting = sortingArray.map((sorter) => omit(sorter, 'column'));

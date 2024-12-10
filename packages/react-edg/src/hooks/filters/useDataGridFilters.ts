@@ -44,7 +44,7 @@ export const useDataGridFilters = <TData extends TableData>(
     );
     const queryFilters = transformFiltersFromQueryParams(initQueryParams, filtersMap);
     const defaultFilters = getDefaultFilters(filters);
-    const selectedFilters = isEmpty(filters) ? defaultFilters : queryFilters;
+    const selectedFilters = isEmpty(queryFilters) ? defaultFilters : queryFilters;
     const pinnedFilters = filters.reduce<React.Key[]>(
       (pinnedFilters, filter) => (filter.showInToolbar ? [...pinnedFilters, filter.columnKey] : pinnedFilters),
       [],

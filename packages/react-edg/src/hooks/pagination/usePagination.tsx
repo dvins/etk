@@ -1,12 +1,12 @@
 import { usePaginationPageStyle } from '@datagrid/hooks/styles';
 
-import type { TablePaginationConfig } from '@datagrid/types';
+import type { DataGridPaginationConfig } from '@datagrid/types';
 
 type UsePagination = (args: {
   total: number | undefined;
-  paging: TablePaginationConfig;
+  paging: DataGridPaginationConfig;
   initialPageQueryParams: number;
-}) => TablePaginationConfig;
+}) => DataGridPaginationConfig;
 
 export const usePagination: UsePagination = ({ total, paging, initialPageQueryParams }) => {
   const getPageStyles = usePaginationPageStyle(paging.current);
@@ -24,7 +24,7 @@ export const usePagination: UsePagination = ({ total, paging, initialPageQueryPa
     );
   };
 
-  const pagination: TablePaginationConfig = {
+  const pagination: DataGridPaginationConfig = {
     total,
     showTotal,
     current: paging.current,

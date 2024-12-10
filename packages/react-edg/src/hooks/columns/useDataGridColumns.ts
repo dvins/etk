@@ -16,7 +16,13 @@ type UseDataGridColumnsReturn<TData extends TableData> = {
   columns: DataGridColumn<TData>[];
   defaultColumns: DataGridColumn<TData>[];
   visibleColumns: DataGridColumn<TData>[];
-  columnToFieldMap: Record<string, string>;
+  columnToFieldMap: Record<
+    string,
+    {
+      filterField: string;
+      sortField: string;
+    }
+  >;
   setColumns: (value: DataGridColumn<TData>[]) => void;
 };
 
@@ -58,10 +64,15 @@ export const useDataGridColumns = <TData extends TableData>({
   const columnToFieldMap = useMemo(() => {
     return columnBuilders.reduce((fieldsMap, builder) => {
       const column = builder.getColumn();
+      const filter = column.filter?.buildFilter();
+      const columnField = column.field ?? column.dataIndex;
 
       return {
         ...fieldsMap,
-        [column.key]: column.nodeField ?? column.dataIndex,
+        [column.key]: {
+          filterField: filter?.field ?? columnField,
+          sortField: columnField,
+        },
       };
     }, {});
   }, [columnBuilders]);

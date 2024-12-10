@@ -26,7 +26,7 @@ export const removeFilterByValue = (
       ...newFilters,
       [columnKey]: {
         value: updatedFilterValue,
-        comparisonFn: selectedFilters[columnKey]?.comparisonFn,
+        operator: selectedFilters[columnKey]?.operator,
       },
     };
   }, {});

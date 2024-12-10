@@ -1,12 +1,9 @@
 import { toArray } from '@datagrid/utils/common';
-import { getInComparison, getIsComparison, getLikeComparison } from '@datagrid/utils/comparisons';
-import { getQueryVariableForOptionsFetch } from '@datagrid/utils/data-fetch';
 import { isFilterEmpty } from '@datagrid/utils/filters';
 import { removeFilter, removeFilterByValue } from '@datagrid/utils/filters/filter-chips';
 
 import type {
   BaseFilterConstructorArgs,
-  ComparisonFn,
   FetchOptionsFn,
   FilterRenderType,
   FilterValue,
@@ -16,9 +13,8 @@ import type {
   IsFilterEmptyFn,
   DataGridFilter,
   ToFilterChipsFn,
-  FilterArgumentToFieldMapper as FilterArgToFieldMapper,
-  FilterInfinityOptionsFetch,
-  InfinityFetchOptions,
+  InfinityFetchOptionsFn,
+  DataGridFilterOperator,
 } from '@datagrid/types';
 
 /**
@@ -40,6 +36,11 @@ export abstract class BaseFilter {
    */
   protected placeholder?: string;
 
+  /**
+   * The field of the filter.
+   */
+  protected field?: string | string[];
+
   /*
    * The icon for the filter label.
    */
@@ -56,9 +57,9 @@ export abstract class BaseFilter {
   protected columnKey?: React.Key;
 
   /**
-   * The comparison function to generate filter parameters for nestjs-query request.
+   * The operator for the filter that should be used in different data providers to generate filter parameters.
    */
-  private comparisonFn: ComparisonFn;
+  protected operator: DataGridFilterOperator;
 
   /**
    * Indicates whether the filter should be shown in the filters panel.
@@ -77,9 +78,7 @@ export abstract class BaseFilter {
 
   private fetchOptions?: FetchOptionsFn;
 
-  private infinityFetchOptions?: InfinityFetchOptions;
-
-  private filterArgToFieldMapper?: FilterArgToFieldMapper;
+  private infinityFetchOptions?: InfinityFetchOptionsFn;
 
   /**
    * The base fetch variables for the filter.
@@ -118,9 +117,9 @@ export abstract class BaseFilter {
   constructor(filter?: BaseFilterConstructorArgs) {
     this.showInFiltersPanel = true;
     this.showInFiltersToolbar = false;
+    this.operator = 'eq';
     this.toFilterParams = ({ value }) => value;
     this.fromFilterParams = (value) => value;
-    this.comparisonFn = (columnKey: string, value: FilterValue) => ({ [columnKey]: value });
     this.toFilterChips = (value: FilterValue) => [this.getBaseFilterChips(value)];
     this.isFilterEmpty = (value: FilterValue) => isFilterEmpty(value);
     Object.assign(this, filter);
@@ -216,13 +215,12 @@ export abstract class BaseFilter {
   }
 
   /**
-   * Sets the comparison function used to generate filter parameters for nestjs-query request.
-   * @param comparisonFn - The comparison function.
+   * Sets the operator for the filter that should be used in different data providers to generate filter parameters.
+   * @param operator - The operator for the filter.
    * @returns The instance of the BaseFilter class.
    */
-  useComparisonFunction(comparisonFn: ComparisonFn): this {
-    this.comparisonFn = comparisonFn;
-
+  useOperator(operator: DataGridFilterOperator): this {
+    this.operator = operator;
     return this;
   }
 
@@ -246,11 +244,9 @@ export abstract class BaseFilter {
   }
 
   useInfinityFetchOptions<TData extends FilterOptionDataType>(
-    infinityFetchOptions: InfinityFetchOptions<TData>,
-    filterArgToFieldMapper: FilterArgToFieldMapper,
+    infinityFetchOptions: InfinityFetchOptionsFn<TData>,
   ): this {
     this.infinityFetchOptions = infinityFetchOptions;
-    this.filterArgToFieldMapper = filterArgToFieldMapper;
     // Set default transform to Filter Chips for filter with options
     this.useOptionsFilterChips();
 
@@ -354,30 +350,6 @@ export abstract class BaseFilter {
   }
 
   /**
-   * Sets the IN comparison function to be used in the filter.
-   * @returns The current instance of the BaseFilter.
-   */
-  useInComparison(): this {
-    return this.useComparisonFunction(getInComparison);
-  }
-
-  /**
-   * Sets the LIKE comparison function to be used in the filter.
-   * @returns The current instance of the BaseFilter.
-   */
-  useLikeComparison(): this {
-    return this.useComparisonFunction(getLikeComparison);
-  }
-
-  /**
-   * Sets the IS comparison function to be used in the filter.
-   * @returns The current instance of the BaseFilter.
-   */
-  useIsComparison(): this {
-    return this.useComparisonFunction(getIsComparison);
-  }
-
-  /**
    * Sets the `isFilterEmpty` function for the filter.
    * The `isFilterEmpty` function is used to determine if the filter is empty.
    * @param isFilterEmptyFn - The function that determines if the filter is empty.
@@ -389,16 +361,12 @@ export abstract class BaseFilter {
     return this;
   }
 
-  private getFilterInfinityOptionsFetch(): FilterInfinityOptionsFetch | undefined {
+  private getFilterInfinityOptionsFetch(): InfinityFetchOptionsFn | undefined {
     if (!this.infinityFetchOptions) {
       return undefined;
     }
 
-    return (args, signal) => {
-      // Transform filter arguments to query variables
-      const queryVariables = getQueryVariableForOptionsFetch(args, this.filterArgToFieldMapper!);
-      return this.infinityFetchOptions!(queryVariables, signal);
-    };
+    return this.infinityFetchOptions;
   }
 
   private getFilterOptionsFetch(): FetchOptionsFn | undefined {
@@ -415,6 +383,7 @@ export abstract class BaseFilter {
   buildFilter(): DataGridFilter {
     return {
       columnKey: this.columnKey!,
+      field: this.field,
       label: this.label!,
       labelIcon: this.labelIcon,
       options: this.options,
@@ -423,8 +392,8 @@ export abstract class BaseFilter {
       defaultValue: this.defaultValue,
       loading: false,
       width: this.width,
+      operator: this.operator,
       isFilterEmpty: this.isFilterEmpty,
-      comparisonFn: this.comparisonFn,
       fetchOptions: this.getFilterOptionsFetch(),
       infinityFetchOptions: this.getFilterInfinityOptionsFetch(),
       toFilterParams: this.toFilterParams,

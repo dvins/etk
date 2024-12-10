@@ -29,6 +29,10 @@ export interface DataGridToolbarProps<T extends TableData> {
    */
   actionButton?: ActionButton;
   /**
+   * Indicates whether the export button is enabled.
+   */
+  isExportable: boolean;
+  /**
    * A function that renders selectable actions for the data grid toolbar.
    */
   renderSelectableActions?: (() => React.ReactNode) | null;
@@ -50,5 +54,5 @@ export interface DataGridToolbarProps<T extends TableData> {
   /**
    * A function that exports the data from the data grid.
    */
-  onDataExport?: () => Promise<void>;
+  onDataExport: () => Promise<void> | undefined;
 }

@@ -10,9 +10,9 @@ import { useFilters } from '../filters';
 import type {
   DataGridFiltersType,
   DataGridView,
-  SorterResult,
+  DataGridSorterResult,
   TableData,
-  TablePaginationConfig,
+  DataGridPaginationConfig,
 } from '@datagrid/types';
 
 type SetQueryParams = {
@@ -23,9 +23,9 @@ type SetQueryParams = {
 };
 
 type UseUpdateQueryParamsArgs<TData extends TableData> = {
-  sorting: SorterResult<TData>[];
-  defaultSorting: SorterResult<TData>[];
-  paging: TablePaginationConfig;
+  sorting: DataGridSorterResult<TData>[];
+  defaultSorting: DataGridSorterResult<TData>[];
+  paging: DataGridPaginationConfig;
   selectedView?: DataGridView<TData>;
   setQueryParams: SetQueryParams;
 };
@@ -46,10 +46,10 @@ export function useUpdateQueryParams<TData extends TableData>({
     },
     sorting: {
       clear: () => setQueryParams.sorting([]),
-      set: (sorter: SorterResult<TData>[]) => setQueryParams.sorting(transformSortValueToQueryParams(sorter)),
+      set: (sorter: DataGridSorterResult<TData>[]) => setQueryParams.sorting(transformSortValueToQueryParams(sorter)),
     },
     paging: {
-      set: (pagination: TablePaginationConfig) => setQueryParams.paging(pagination.current ?? 1),
+      set: (pagination: DataGridPaginationConfig) => setQueryParams.paging(pagination.current ?? 1),
     },
     view: {
       set: (viewKey: string) => setQueryParams.view(viewKey),

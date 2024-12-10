@@ -1,4 +1,4 @@
-import { durationTimeRenderer, wholeNumberRenderer } from '@datagrid/column-renderers';
+import { durationTimeRenderer, percentRenderer, wholeNumberRenderer } from '@datagrid/column-renderers';
 
 import { BaseColumn } from './BaseColumn';
 
@@ -21,5 +21,9 @@ export class NumberColumn<TData extends Record<string, any>> extends BaseColumn<
    */
   useWholeNumberRender(): this {
     return this.useRender((value) => wholeNumberRenderer(value));
+  }
+
+  usePercentRender(): this {
+    return this.useRender((value) => percentRenderer(value));
   }
 }

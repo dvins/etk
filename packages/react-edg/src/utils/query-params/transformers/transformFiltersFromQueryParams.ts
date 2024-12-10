@@ -20,7 +20,7 @@ export const transformFiltersFromQueryParams = (
     try {
       filterValue = {
         value: filter.fromFilterParams(queryFilterValue),
-        comparisonFn: filter.comparisonFn,
+        operator: filter.operator,
       };
     } catch (error) {
       filterValue = null;

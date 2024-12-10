@@ -9,8 +9,8 @@ export type EnumColumnOption = {
 
 export type DataGridColumn<TData> = TableColumnType<TData> & {
   key: string;
-  dataIndex?: React.Key | readonly React.Key[];
-  nodeField?: string;
+  field?: string | string[];
+  dataIndex?: string | string[];
   hidden?: boolean;
   group?: string;
   filter?: BaseFilter;

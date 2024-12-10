@@ -1,4 +1,5 @@
 import { ColumnsManagerModal } from '@datagrid/components';
+import { useFilters } from '@datagrid/hooks/filters';
 import { useSelectMode } from '@datagrid/hooks/selection';
 import { useDataGridTheme } from '@datagrid/theme/hooks';
 import { ViewMode } from '@datagrid/types';
@@ -26,6 +27,7 @@ export const DataGridToolbar = <T extends TableData>({
   defaultColumns,
   filtersPanelOpen,
   actionButton,
+  isExportable,
   onColumnsManagerSave,
   onViewModeChange,
   renderSelectableActions,
@@ -34,6 +36,8 @@ export const DataGridToolbar = <T extends TableData>({
 }: DataGridToolbarProps<T>): ReactElement | null => {
   const [showColumnsManagerModal, setShowColumnsManagerModal] = useState(false);
   const { selectModeEnabled, selectModeUnavailable, enableSelectMode, disableSelectMode } = useSelectMode();
+  const { filters } = useFilters();
+  const hasFilters = filters.length > 0;
   const theme = useDataGridTheme();
 
   const handlePanelToggle = () => {
@@ -46,7 +50,7 @@ export const DataGridToolbar = <T extends TableData>({
 
   const showLeftContent = toolbarConfig.showCard && toolbarConfig.showList;
   const showColumnsManager = toolbarConfig.showColumnsManager && viewMode !== ViewMode.Card && !selectModeEnabled;
-  const showDataExport = Boolean(onDataExport) && !selectModeEnabled;
+  const showDataExport = isExportable && !selectModeEnabled;
 
   const showSelectAction = !selectModeUnavailable;
 
@@ -77,7 +81,7 @@ export const DataGridToolbar = <T extends TableData>({
       </Styled.ToolbarSection>
 
       <Styled.ToolbarSection>
-        <FiltersButton onClick={handlePanelToggle} />
+        {hasFilters && <FiltersButton onClick={handlePanelToggle} />}
 
         {showColumnsManager && (
           <>

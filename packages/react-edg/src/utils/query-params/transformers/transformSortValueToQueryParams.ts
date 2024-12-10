@@ -1,6 +1,6 @@
-import type { SorterResult } from '@datagrid/types';
+import type { DataGridSorterResult } from '@datagrid/types';
 
-export const transformSortValueToQueryParams = <TData>(sorter: SorterResult<TData>[]): string[] => {
+export const transformSortValueToQueryParams = <TData>(sorter: DataGridSorterResult<TData>[]): string[] => {
   return sorter.reduce<string[]>((sorting, { columnKey, order }) => {
     if (!order) {
       return sorting;

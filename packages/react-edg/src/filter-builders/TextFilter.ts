@@ -3,12 +3,18 @@ import { createElement } from 'react';
 
 import { BaseFilter } from './BaseFilter';
 
+import type { BaseFilterConstructorArgs } from '@datagrid/types';
 import type { InputProps } from 'antd';
 
 /**
  * Represents a TextFilter class builder.
  */
 export class TextFilter extends BaseFilter {
+  constructor(args: BaseFilterConstructorArgs) {
+    super(args);
+    this.operator = args.operator ?? 'contains';
+  }
+
   /**
    * Configures the TextFilter to use an Input component for rendering. Applies the LIKE comparison method.
    * @param props Optional props to be passed to the Input component.
@@ -24,6 +30,6 @@ export class TextFilter extends BaseFilter {
       }),
     );
 
-    return this.useLikeComparison();
+    return this;
   }
 }

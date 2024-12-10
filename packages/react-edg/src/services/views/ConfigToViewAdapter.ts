@@ -3,7 +3,7 @@ import type {
   DataGridFilter,
   DataGridFiltersType,
   DataGridView,
-  SorterResult,
+  DataGridSorterResult,
   TableData,
   ViewConfig,
 } from '@datagrid/types';
@@ -47,23 +47,23 @@ export class ConfigToViewAdapter<TData extends TableData> {
     });
   }
 
-  private getViewSorting(columnsMap: Record<string, DataGridColumn<TData>>): SorterResult<TData>[] {
+  private getViewSorting(columnsMap: Record<string, DataGridColumn<TData>>): DataGridSorterResult<TData>[] {
     const {
       value: { columns },
     } = this.viewConfig;
 
-    return columns.reduce<SorterResult<TData>[]>((sorting, column) => {
+    return columns.reduce<DataGridSorterResult<TData>[]>((sorting, column) => {
       if (!column.sortOrder) {
         return sorting;
       }
 
-      const { dataIndex, key } = columnsMap[column.key];
+      const { dataIndex, key, field } = columnsMap[column.key];
 
       return [
         ...sorting,
         {
           columnKey: key,
-          field: dataIndex ?? key,
+          field: field ?? dataIndex ?? key,
           order: column.sortOrder,
         },
       ];
@@ -84,7 +84,7 @@ export class ConfigToViewAdapter<TData extends TableData> {
         ...viewFilters,
         [filterConfig.key]: {
           value: filterConfig.value,
-          comparisonFn: filtersMap[filterConfig.key].comparisonFn,
+          operator: filtersMap[filterConfig.key].operator,
         },
       };
     }, {});

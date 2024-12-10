@@ -1,5 +1,4 @@
-import type { ComparisonFilter } from './comparison.types';
-import type { Paging } from './paging.types';
+import type { DataGridFilterOperator } from './filterOperators.types';
 import type { DefaultOptionType } from 'antd/es/select';
 
 export type FilterOptionDataType = Record<string, any> | undefined;
@@ -12,11 +11,8 @@ export type FetchOptionsFn<TData extends FilterOptionDataType = FilterOptionData
   variables?: Record<string, any>,
 ) => Promise<FilterOptionType<TData>[]>;
 
-export type InfinityFetchOptions<TData extends FilterOptionDataType = FilterOptionDataType> = (
-  queryVariables: {
-    filters: ComparisonFilter[];
-    paging: Paging;
-  },
+export type InfinityFetchOptionsFn<TData extends FilterOptionDataType = FilterOptionDataType> = (
+  variables: InfinityFetchOptionsVariables,
   signal?: AbortSignal,
 ) => Promise<FilterOptionType<TData>[]>;
 
@@ -27,21 +23,7 @@ export type InfinityFetchOptionsVariables = {
   [key: string]: any;
 };
 
-// Describes function that fetches filter options in filter component
-export type FilterInfinityOptionsFetch<TData extends FilterOptionDataType = FilterOptionDataType> = (
-  args: InfinityFetchOptionsVariables,
-  signal?: AbortSignal,
-) => Promise<FilterOptionType<TData>[]>;
-
-// Provides ability to map filter value to field value
-export type FilterArgumentToFieldMapper = {
-  substring: string | string[];
-  defaultValue: string | string[];
-};
-
 export type ToFilterChipsFn = (value: FilterValue, options?: FilterOptionType[]) => DataGridFilterChips[];
-
-export type ComparisonFn = (columnKey: string, value: any) => any;
 
 export type IsFilterEmptyFn = (value: FilterValue) => boolean;
 
@@ -53,7 +35,7 @@ export type FilterRenderArgs<TData extends FilterOptionDataType = FilterOptionDa
   loading?: boolean;
   disabled?: boolean;
   fetchOptions?: FetchOptionsFn<TData>;
-  infinityFetchOptions?: FilterInfinityOptionsFetch<TData>;
+  infinityFetchOptions?: InfinityFetchOptionsFn<TData>;
   onChange?: (value: FilterValue) => void;
   updateLoading?: (loading: boolean) => void;
   updateOptions?: (newOptions: FilterOptionType<TData>[]) => void;
@@ -66,9 +48,10 @@ export type FilterRenderType<TData extends FilterOptionDataType = FilterOptionDa
 
 export type BaseFilterConstructorArgs = {
   component?: JSX.Element;
-  comparisonFn?: ComparisonFn;
+  operator?: DataGridFilterOperator;
   columnKey?: string | number;
   label?: string;
+  field?: string | string[];
   placeholder?: string;
   width?: string | number;
 };
@@ -91,18 +74,14 @@ export type DataGridFilterChips = {
 
 export type DataGridFilterValue = {
   value: FilterValue;
-  comparisonFn: ComparisonFn;
+  operator: DataGridFilterOperator;
 };
 
 export type DataGridFiltersType = Record<React.Key, DataGridFilterValue>;
 
-export enum LogicalOperatorEnum {
-  and = 'and',
-  or = 'or',
-}
-
 export type DataGridFilter = {
   columnKey: React.Key;
+  field?: string | string[];
   label: string;
   labelIcon?: React.ReactNode;
   value?: FilterValue;
@@ -116,8 +95,8 @@ export type DataGridFilter = {
   loading?: boolean;
   isFilterEmpty: IsFilterEmptyFn;
   fetchOptions?: FetchOptionsFn;
-  infinityFetchOptions?: FilterInfinityOptionsFetch;
-  comparisonFn: ComparisonFn;
+  infinityFetchOptions?: InfinityFetchOptionsFn;
+  operator: DataGridFilterOperator;
   render?: FilterRenderType;
   toFilterChips: ToFilterChipsFn;
   toFilterParams: (value: FilterValue) => Record<string, any>;

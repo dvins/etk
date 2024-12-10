@@ -1,10 +1,10 @@
-import type { DataGridColumn, SorterResult, SortOrder, TableData } from '@datagrid/types';
+import type { DataGridColumn, DataGridSorterResult, DataGridSortOrder, TableData } from '@datagrid/types';
 
 export const transformSortValueFromQueryParams = <TData extends TableData>(
   columns: DataGridColumn<TData>[],
   sortingRules: string[],
-): SorterResult<TData>[] => {
-  return sortingRules.reduce<SorterResult<TData>[]>((sorter, rule) => {
+): DataGridSorterResult<TData>[] => {
+  return sortingRules.reduce<DataGridSorterResult<TData>[]>((sorter, rule) => {
     const [columnKey, sortOrder] = rule.split('+');
     const field = columns.find((column) => column.key === columnKey)?.dataIndex;
 
@@ -13,7 +13,7 @@ export const transformSortValueFromQueryParams = <TData extends TableData>(
       {
         columnKey,
         field,
-        order: sortOrder as SortOrder,
+        order: sortOrder as DataGridSortOrder,
       },
     ];
   }, []);

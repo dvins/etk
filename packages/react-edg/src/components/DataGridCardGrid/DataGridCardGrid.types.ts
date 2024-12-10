@@ -1,4 +1,4 @@
-import type { ContextMenuConfig, CardItem, TableData, TablePaginationConfig } from '@datagrid/types';
+import type { ContextMenuConfig, CardItem, TableData, DataGridPaginationConfig } from '@datagrid/types';
 import type { TableProps } from 'antd';
 
 /**
@@ -29,7 +29,7 @@ export interface CardGridProps<TData extends TableData> {
    * Specifies the pagination configuration for the CardGrid component.
    * Set to `false` to disable pagination.
    */
-  pagination?: false | TablePaginationConfig;
+  pagination?: false | DataGridPaginationConfig;
 
   /**
    * Specifies the row selection configuration for the CardGrid component.
@@ -46,7 +46,7 @@ export interface CardGridProps<TData extends TableData> {
    *
    * @param pagination - The new pagination configuration.
    */
-  onChange?: (pagination: TablePaginationConfig) => void;
+  onChange?: (pagination: DataGridPaginationConfig) => void;
 
   /**
    * Callback function that is called when a card item is clicked.

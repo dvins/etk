@@ -1,7 +1,8 @@
 export * from './column-builders';
 export * from './filter-builders';
 export { DataGrid, Card as DataGridCard } from './components';
-export * from './utils/comparisons';
+
+export * from './api';
 
 export type {
   ViewConfig as DataGridViewConfig,
@@ -12,10 +13,9 @@ export type {
   BaseFilterConstructorArgs as DataGridBaseFilterConstructorArgs,
   FilterOptionType as DataGridFilterOptionType,
   FilterOptionDataType as DataGridFilterOptionDataType,
-  ComparisonFn as DataGridComparisonFn,
   FetchOptionsFn as DataGridFetchOptions,
-  InfinityFetchOptions as DataGridInfinityFetchOptions,
-  FilterInfinityOptionsFetch as DataGridFilterInfinityOptionsFetch,
-  ComparisonFilter as DataGridComparisonFilter,
+  InfinityFetchOptionsFn as DataGridInfinityFetchOptionsFn,
+  InfinityFetchOptionsVariables as DataGridInfinityFetchOptionsVariables,
+  DataGridFilterOperator,
 } from './types';
 export type { DataGridCardCoverProps, DataGridCardTitleProps } from './components';

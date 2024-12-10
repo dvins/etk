@@ -12,7 +12,7 @@ export const getDefaultFilters = (filters: DataGridFilter[]): DataGridFiltersTyp
     try {
       filterValue = {
         value: filter.fromFilterParams(filter.defaultValue),
-        comparisonFn: filter.comparisonFn,
+        operator: filter.operator,
       };
     } catch (error) {
       filterValue = null;

@@ -7,8 +7,8 @@ import {
   DataGridToolbar,
 } from '@datagrid/components';
 import { defaultToolbarConfig, DEFAULT_PAGE_SIZE, FILTERS_PANEL } from '@datagrid/constants';
+import { useErrorHandling } from '@datagrid/hooks/base';
 import { useDataGridColumns } from '@datagrid/hooks/columns';
-import { useDataGridResult } from '@datagrid/hooks/data-fetch';
 import { useDataGridFilters } from '@datagrid/hooks/filters';
 import { usePagination } from '@datagrid/hooks/pagination';
 import { useDataGridQueryParams, useUpdateQueryParams } from '@datagrid/hooks/query-params';
@@ -17,10 +17,11 @@ import { useDataGridSorting } from '@datagrid/hooks/sorting';
 import { useTableKey } from '@datagrid/hooks/table';
 import { useDataGridTheme } from '@datagrid/theme/hooks';
 import { ViewMode } from '@datagrid/types';
-import { getQueryVariables } from '@datagrid/utils/data-fetch';
+import { transformToParameters } from '@datagrid/utils/parameters';
 import { getToolbarConfig } from '@datagrid/utils/toolbar';
+import { useDebounceEffect } from 'ahooks';
 import { isEmpty } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 
 import { DataGridDevError } from '../DataGridDevError';
@@ -29,13 +30,21 @@ import { DataGridHeader } from '../DataGridHeader';
 import { Styled } from './DataGrid.styles';
 
 import type { DataGridProps } from './DataGrid.types';
-import type { TableSorter, TableData, DataGridView, TablePaginationConfig } from '@datagrid/types';
+import type {
+  DataGridSorter,
+  TableData,
+  DataGridView,
+  DataGridPaginationConfig,
+  DataGridParameters,
+} from '@datagrid/types';
 
 export function DataGrid<TData extends TableData>({
   rowKey,
   title,
   columnBuilders,
-  request,
+  data,
+  loading,
+  loadingError,
   contextMenu,
   toolbarConfig = defaultToolbarConfig,
   CardItem,
@@ -43,8 +52,8 @@ export function DataGrid<TData extends TableData>({
   actionButton,
   bulkActions,
   onRowClick,
+  onParamsChange,
   onDataExport,
-  loading: defaultLoading,
   ...tableProps
 }: DataGridProps<TData>): JSX.Element | null {
   const theme = useDataGridTheme();
@@ -74,7 +83,7 @@ export function DataGrid<TData extends TableData>({
   const { rowSelection, renderSelectableActions } = useSelectableRows(bulkActions);
   const [selectedView, setSelectedView] = useState<DataGridView<TData>>();
 
-  const [paging, setPaging] = useState<TablePaginationConfig>({
+  const [paging, setPaging] = useState<DataGridPaginationConfig>({
     pageSize: DEFAULT_PAGE_SIZE,
     current: initialPageQueryParams,
   });
@@ -82,6 +91,17 @@ export function DataGrid<TData extends TableData>({
     columnBuilders,
     initialQueryParams: initialSortQueryParams,
   });
+
+  const dataGridParameters = useMemo<DataGridParameters>(
+    () =>
+      transformToParameters({
+        filters: selectedFilters,
+        sorting,
+        paging,
+        columnToFieldMap,
+      }),
+    [selectedFilters, sorting, paging, columnToFieldMap],
+  );
 
   // Update query params based on filters, sorting, paging and view
   useUpdateQueryParams<TData>({
@@ -97,18 +117,23 @@ export function DataGrid<TData extends TableData>({
     },
   });
 
-  const params = {
-    paging,
-    sorting,
-    filters: selectedFilters,
-    fieldsMap: columnToFieldMap,
-    queryParams: request.queryParams,
-  };
-  const result = useDataGridResult<TData>(request.query, request.dataKey, params);
+  // Handle error from data fetching
+  useErrorHandling(loadingError);
+
+  // Fire changed parameters with debounce to avoid multiple requests
+  useDebounceEffect(
+    () => {
+      onParamsChange?.(dataGridParameters);
+    },
+    [dataGridParameters],
+    {
+      wait: 100,
+    },
+  );
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.List);
   const [filtersPanelOpen, setFiltersPanelOpen] = useState(false);
-  const pagination = usePagination({ total: result.totalCount, paging, initialPageQueryParams });
+  const pagination = usePagination({ total: data.totalCount, paging, initialPageQueryParams });
 
   const panelSize = filtersPanelOpen ? FILTERS_PANEL.width : 0;
 
@@ -119,7 +144,7 @@ export function DataGrid<TData extends TableData>({
     }));
   };
 
-  const handleOnChange = (pagination: TablePaginationConfig, _?: any, sorter?: TableSorter<TData>) => {
+  const handleOnChange = (pagination: DataGridPaginationConfig, _?: any, sorter?: DataGridSorter<TData>) => {
     setPaging(pagination);
 
     if (!isEmpty(sorter)) {
@@ -131,7 +156,7 @@ export function DataGrid<TData extends TableData>({
     setViewMode(selectedViewMode);
   };
 
-  const handleDataExport = async () => onDataExport?.(request.query, getQueryVariables(params));
+  const handleDataExport = () => onDataExport?.(dataGridParameters);
 
   const updateDataGridOnViewChange = (view: DataGridView<TData>) => {
     setColumns(view.columns);
@@ -154,8 +179,6 @@ export function DataGrid<TData extends TableData>({
     setTableKey(tableKey);
     jumpToFirstPage();
   };
-
-  const isLoading = Boolean(result.loading || defaultLoading);
 
   return (
     <ThemeProvider theme={theme}>
@@ -191,9 +214,10 @@ export function DataGrid<TData extends TableData>({
                   defaultColumns={selectedView?.columns ?? defaultColumns}
                   filtersPanelOpen={filtersPanelOpen}
                   actionButton={actionButton}
+                  isExportable={Boolean(onDataExport)}
                   onColumnsManagerSave={setColumns}
                   onViewModeChange={handleViewModeChange}
-                  onDataExport={onDataExport && handleDataExport}
+                  onDataExport={handleDataExport}
                   onFiltersPanelOpen={setFiltersPanelOpen}
                   renderSelectableActions={renderSelectableActions}
                 />
@@ -205,8 +229,8 @@ export function DataGrid<TData extends TableData>({
                 <DataGridCardGrid<TData>
                   rowKey={rowKey}
                   rowSelection={rowSelection}
-                  dataSource={result.data}
-                  loading={isLoading}
+                  dataSource={data.data}
+                  loading={loading}
                   CardItem={CardItem}
                   pagination={pagination}
                   contextMenu={contextMenu}
@@ -223,8 +247,8 @@ export function DataGrid<TData extends TableData>({
                 rowSelection={rowSelection}
                 columns={visibleColumns}
                 contextMenu={contextMenu}
-                dataSource={result.data}
-                loading={isLoading}
+                dataSource={data.data}
+                loading={loading}
                 onChange={handleOnChange}
                 pagination={pagination}
                 onRowClick={onRowClick}

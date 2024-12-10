@@ -1,4 +1,4 @@
-import type { DataGridColumn, DataGridView, SorterResult, TableData, ViewConfig } from '@datagrid/types';
+import type { DataGridColumn, DataGridView, DataGridSorterResult, TableData, ViewConfig } from '@datagrid/types';
 
 /**
  * Props for the DataGridViewSelect component.
@@ -23,7 +23,7 @@ export interface DataGridViewSelectProps<TData extends TableData> {
   /**
    * The query sorting in the data grid.
    */
-  querySorting: SorterResult<TData>[];
+  querySorting: DataGridSorterResult<TData>[];
 
   /**
    * A callback function that is called when the view is changed.

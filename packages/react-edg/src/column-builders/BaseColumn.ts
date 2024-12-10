@@ -2,7 +2,7 @@ import { ellipsisRenderer } from '@datagrid/column-renderers';
 import { isNull, isString } from 'lodash';
 
 import type { BaseFilter } from '@datagrid/filter-builders';
-import type { ColumnRenderFn, SortOrder, DataGridColumn, PinStatus } from '@datagrid/types';
+import type { ColumnRenderFn, DataGridSortOrder, DataGridColumn, PinStatus } from '@datagrid/types';
 
 /**
  * Abstract base class for building data grid column.
@@ -49,7 +49,7 @@ export abstract class BaseColumn<TData extends Record<string, any>, TValue = any
    * @param sortOrder - The default sort order.
    * @returns The current instance of BaseColumn.
    */
-  useDefaultSortOrder(sortOrder: SortOrder): this {
+  useDefaultSortOrder(sortOrder: DataGridSortOrder): this {
     this.column.defaultSortOrder = sortOrder;
 
     return this;

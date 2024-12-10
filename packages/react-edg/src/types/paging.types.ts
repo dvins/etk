@@ -1,8 +1,8 @@
 import type { TablePaginationConfig as AntdTablePaginationConfig } from 'antd';
 
-export type Paging = {
+export type DataGridPaging = {
   first: number;
   after?: string;
 };
 
-export type TablePaginationConfig = AntdTablePaginationConfig;
+export type DataGridPaginationConfig = AntdTablePaginationConfig;

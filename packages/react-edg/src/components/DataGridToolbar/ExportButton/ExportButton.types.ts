@@ -1,3 +1,3 @@
 export interface ExportButtonProps {
-  onDataExport?: () => Promise<void>;
+  onDataExport?: () => Promise<void> | undefined;
 }

@@ -60,7 +60,7 @@ export const DataGridFilterItem: React.FC<DataGridFilterItemProps> = ({
 
     onChange(filter.columnKey, {
       value,
-      comparisonFn: filter.comparisonFn,
+      operator: filter.operator,
     });
   };
 

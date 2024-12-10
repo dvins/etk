@@ -1,5 +1,6 @@
 import { useErrorStore } from '@datagrid/stores/error';
 import { notification } from 'antd';
+import { useEffect } from 'react';
 
 import type { ApolloError } from '@apollo/client';
 
@@ -11,10 +12,10 @@ const ERROR_NOTIFICATION_CONFIG = {
   },
 };
 
-export const useErrorHandling = () => {
+export const useErrorHandling = (defaultError?: unknown) => {
   const { errors, setError: setErrorToStore, clearErrors } = useErrorStore();
 
-  const showErrorNotification = (message: React.ReactNode) => {
+  const showErrorNotification = (message: string) => {
     notification.error({
       message: 'Sorry, an error occurred',
       description: message,
@@ -26,6 +27,13 @@ export const useErrorHandling = () => {
     setErrorToStore(error);
     showErrorNotification(error.message);
   };
+
+  useEffect(() => {
+    if (defaultError) {
+      // TODO: handler different types of errors
+      setError(defaultError as ApolloError);
+    }
+  }, [defaultError]);
 
   return {
     errors,

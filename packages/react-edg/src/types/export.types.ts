@@ -1,7 +1,3 @@
-import type { DocumentNode } from '@apollo/client';
+import type { DataGridParameters } from './parameters.types';
 
-export type DataExportHandler<TData> = (
-  query: DocumentNode,
-  variables: Record<string, any>,
-  excludeKeys?: (keyof TData)[],
-) => Promise<any>;
+export type DataExportHandler = (parameters: DataGridParameters) => Promise<void>;
