@@ -104,7 +104,7 @@ export function setTrackedJobTelemetry<T extends IMessage | IUnknownMessage>(
   const { job, message, messageDefinition, messageQueueDefinition } = context;
   const currentTx: ScopeData | undefined = Sentry.getCurrentScope().getScopeData();
 
-  const sentryTags = {
+  const sentryTags: Record<string, string | null | undefined> = {
     jobId: job.id,
     messageId: message.id,
     messageType: message.type,
@@ -118,6 +118,18 @@ export function setTrackedJobTelemetry<T extends IMessage | IUnknownMessage>(
     jobEvent: null,
     queue: null,
   };
+
+  const contextAttributes = [
+    ...Object.keys(message.context || {}),
+    ...Object.keys(logger.contextAttributes || {}),
+  ];
+
+  for (const key of contextAttributes) {
+    const contextValue = message.data?.[key];
+    if (contextValue && !sentryTags[key]) {
+      sentryTags[key] = contextValue;
+    }
+  }
 
   const contextObj = {
     job: { ...job, data: null, queue: null, scripts: null, returnValue: null },
