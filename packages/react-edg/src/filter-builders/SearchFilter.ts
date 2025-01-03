@@ -29,8 +29,8 @@ export class SearchFilter extends BaseFilter {
 
   private description?: string;
 
-  constructor(filterArgs?: SearchFilterConstructorArgs) {
-    super(filterArgs ?? {});
+  constructor(filterArgs: SearchFilterConstructorArgs) {
+    super(filterArgs);
 
     this.operator = filterArgs?.operator ?? 'contains';
     this.label = filterArgs?.label ?? 'Search By';

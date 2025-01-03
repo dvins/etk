@@ -34,8 +34,8 @@ export interface DataGridFilterItemProps {
   width?: string;
   /**
    * Callback function invoked when the filter value changes.
-   * @param columnKey - The key of the column associated with the filter.
+   * @param filterKey - The key of the filter.
    * @param value - The new filter value.
    */
-  onChange: (columnKey: React.Key, value: DataGridFilterValue) => void;
+  onChange: (filterKey: string, value: DataGridFilterValue) => void;
 }

@@ -3,19 +3,19 @@ import { toArray } from '@datagrid/utils/common';
 import type { DataGridFiltersType, FilterValue } from '@datagrid/types';
 
 export const removeFilterByValue = (
+  filterKey: string,
   selectedFilters: DataGridFiltersType,
-  columnKey: React.Key,
   value: FilterValue,
 ): DataGridFiltersType =>
-  Object.keys(selectedFilters).reduce<DataGridFiltersType>((newFilters, currentColumnKey) => {
-    if (columnKey !== currentColumnKey) {
+  Object.keys(selectedFilters).reduce<DataGridFiltersType>((newFilters, currentFilterKey) => {
+    if (filterKey !== currentFilterKey) {
       return {
         ...newFilters,
-        [currentColumnKey]: selectedFilters[currentColumnKey],
+        [currentFilterKey]: selectedFilters[currentFilterKey],
       };
     }
 
-    const filterValue = selectedFilters[columnKey]?.value;
+    const filterValue = selectedFilters[filterKey]?.value;
     const updatedFilterValue = toArray(filterValue).filter((valueEl) => valueEl !== value);
 
     if (!updatedFilterValue.length) {
@@ -24,19 +24,20 @@ export const removeFilterByValue = (
 
     return {
       ...newFilters,
-      [columnKey]: {
+      [filterKey]: {
+        field: selectedFilters[filterKey]?.field,
         value: updatedFilterValue,
-        operator: selectedFilters[columnKey]?.operator,
+        operator: selectedFilters[filterKey]?.operator,
       },
     };
   }, {});
 
-export const removeFilter = (selectedFilters: DataGridFiltersType, columnKey: React.Key): DataGridFiltersType =>
-  Object.keys(selectedFilters).reduce<DataGridFiltersType>((newFilters, currentColumnKey) => {
-    if (columnKey !== currentColumnKey) {
+export const removeFilter = (filterKey: string, selectedFilters: DataGridFiltersType): DataGridFiltersType =>
+  Object.keys(selectedFilters).reduce<DataGridFiltersType>((newFilters, currentFilterKey) => {
+    if (filterKey !== currentFilterKey) {
       return {
         ...newFilters,
-        [currentColumnKey]: selectedFilters[currentColumnKey],
+        [currentFilterKey]: selectedFilters[currentFilterKey],
       };
     }
 

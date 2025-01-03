@@ -1,4 +1,9 @@
-import { durationTimeRenderer, percentRenderer, wholeNumberRenderer } from '@datagrid/column-renderers';
+import {
+  durationTimeRenderer,
+  percentRenderer,
+  timeDurationInMsRenderer,
+  wholeNumberRenderer,
+} from '@datagrid/column-renderers';
 
 import { BaseColumn } from './BaseColumn';
 
@@ -13,6 +18,14 @@ export class NumberColumn<TData extends Record<string, any>> extends BaseColumn<
    */
   useDurationTimeRender(): this {
     return this.useRender((value) => durationTimeRenderer(value));
+  }
+
+  /**
+   * Sets the render function for displaying time duration in milliseconds values in the column.
+   * @returns The current instance of the NumberColumn.
+   */
+  useTimeDurationInMsRender(): this {
+    return this.useRender((value) => timeDurationInMsRenderer(value));
   }
 
   /**

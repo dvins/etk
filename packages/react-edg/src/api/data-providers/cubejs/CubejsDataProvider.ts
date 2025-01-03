@@ -24,16 +24,21 @@ export const CubejsDataProvider = <TData>(
   };
 
   return {
+    loadingMessage: 'Please hold on, refreshing analytics data',
+
     generateVariablesFromParams,
 
     list: async (params, meta) => {
+      const variables = generateVariablesFromParams(params);
       const query: Query = {
         timezone: options?.defaultTimezone,
         ...meta,
-        ...generateVariablesFromParams(params),
+        ...variables,
+        filters: [...(meta.filters ?? []), ...variables.filters],
       };
 
       const result = await cubejsApi.load(query);
+
       const data = result.rawData();
       const totalCount = result.serialize().loadResponse.results[0].total ?? data.length;
 

@@ -11,6 +11,7 @@ export const getDefaultFilters = (filters: DataGridFilter[]): DataGridFiltersTyp
     /* Check if the value can be formatted by the granted transform function */
     try {
       filterValue = {
+        field: filter.field,
         value: filter.fromFilterParams(filter.defaultValue),
         operator: filter.operator,
       };
@@ -20,6 +21,6 @@ export const getDefaultFilters = (filters: DataGridFilter[]): DataGridFiltersTyp
 
     return {
       ...defaultFilters,
-      ...(filterValue ? { [filter.columnKey as string]: filterValue } : {}),
+      ...(filterValue ? { [filter.key]: filterValue } : {}),
     };
   }, {});

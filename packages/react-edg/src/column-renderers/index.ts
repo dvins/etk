@@ -4,4 +4,5 @@ export * from './durationTimeRenderer';
 export * from './ellipsisRenderer';
 export * from './timeAgoRenderer';
 export * from './wholeNumberRenderer';
+export * from './timeDurationInMsRenderer';
 export * from './percentRenderer';

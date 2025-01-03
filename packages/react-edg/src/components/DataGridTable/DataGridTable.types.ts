@@ -5,4 +5,7 @@ import type { TableProps } from 'antd';
 export type DataGridTableProps<TData extends TableData> = TableProps<TData> &
   Pick<DataGridProps<TData>, 'onRowClick' | 'contextMenu'> & {
     columns: DataGridColumn<TData>[];
+  } & {
+    loading?: boolean;
+    loadingMessage?: string;
   };

@@ -4,8 +4,8 @@ export const transformFiltersFromQueryParams = (
   queryParams: Record<string, any>,
   filtersMap: Record<string, DataGridFilter>,
 ): DataGridFiltersType =>
-  Object.keys(queryParams).reduce<DataGridFiltersType>((filters, columnKey) => {
-    const filter = filtersMap[columnKey];
+  Object.keys(queryParams).reduce<DataGridFiltersType>((filters, filterKey) => {
+    const filter = filtersMap[filterKey];
 
     /* If column not exists in columns definition - skip it */
     if (!filter) {
@@ -13,12 +13,13 @@ export const transformFiltersFromQueryParams = (
     }
 
     /* Get the method to convert from query filter value */
-    const queryFilterValue = queryParams[columnKey];
+    const queryFilterValue = queryParams[filterKey];
     let filterValue: DataGridFilterValue | null;
 
     /* Check if the value can be formatted by the granted transform function */
     try {
       filterValue = {
+        field: filter.field,
         value: filter.fromFilterParams(queryFilterValue),
         operator: filter.operator,
       };
@@ -28,6 +29,6 @@ export const transformFiltersFromQueryParams = (
 
     return {
       ...filters,
-      ...(filterValue ? { [filter.columnKey as string]: filterValue } : {}),
+      ...(filterValue ? { [filter.key]: filterValue } : {}),
     };
   }, {});

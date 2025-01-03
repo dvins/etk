@@ -13,6 +13,7 @@ export const DataGridCardGrid = <TData extends TableData>({
   dataSource,
   CardItem,
   loading,
+  loadingMessage,
   pagination,
   rowSelection,
   contextMenu,
@@ -69,7 +70,7 @@ export const DataGridCardGrid = <TData extends TableData>({
   };
 
   return (
-    <Spin spinning={loading}>
+    <Spin spinning={loading} tip={loadingMessage}>
       <Styled.Grid>
         {dataSource.map((value, index) => (
           <Styled.GridItem key={getGridElementKey(value, index)}>{renderCard(value)}</Styled.GridItem>

@@ -15,17 +15,17 @@ export class ConfigToViewAdapter<TData extends TableData> {
     this.viewConfig = viewConfig;
   }
 
-  private getPinnedFilters(): React.Key[] {
+  private getPinnedFilters(): string[] {
     const {
       value: { filters },
     } = this.viewConfig;
 
-    return filters.reduce<React.Key[]>((keys, filterConfig) => {
+    return filters.reduce<string[]>((filterKeys, filterConfig) => {
       if (filterConfig.pinned) {
-        return [...keys, filterConfig.key];
+        return [...filterKeys, filterConfig.key];
       }
 
-      return keys;
+      return filterKeys;
     }, []);
   }
 
@@ -57,7 +57,7 @@ export class ConfigToViewAdapter<TData extends TableData> {
         return sorting;
       }
 
-      const { dataIndex, key, field } = columnsMap[column.key];
+      const { field, dataIndex, key } = columnsMap[column.key];
 
       return [
         ...sorting,
@@ -83,6 +83,7 @@ export class ConfigToViewAdapter<TData extends TableData> {
       return {
         ...viewFilters,
         [filterConfig.key]: {
+          field: filtersMap[filterConfig.key].field,
           value: filterConfig.value,
           operator: filtersMap[filterConfig.key].operator,
         },

@@ -1,7 +1,6 @@
 import { ellipsisRenderer } from '@datagrid/column-renderers';
 import { isNull, isString } from 'lodash';
 
-import type { BaseFilter } from '@datagrid/filter-builders';
 import type { ColumnRenderFn, DataGridSortOrder, DataGridColumn, PinStatus } from '@datagrid/types';
 
 /**
@@ -109,18 +108,6 @@ export abstract class BaseColumn<TData extends Record<string, any>, TValue = any
     this.column.ellipsis = true;
     this.column.onCell = () => ({ style: { maxWidth: 1 } });
     this.useRender((value) => ellipsisRenderer(value as string));
-
-    return this;
-  }
-
-  /**
-   * Sets the filter for the column.
-   *
-   * @param filter - The filter builder that will be used for the column.
-   * @returns The current instance of BaseColumn.
-   */
-  useFilter(filter: BaseFilter): this {
-    this.column.filter = filter.useColumnKey(this.column.key);
 
     return this;
   }

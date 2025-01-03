@@ -1,9 +1,9 @@
 import type { DataGridFilter, DataGridFiltersType } from '@datagrid/types';
 
 interface FilterActions {
-  updateFilterItem: (columnKey: React.Key, filterItemData: Partial<DataGridFilter>) => void;
+  updateFilterItem: (filterKey: string, filterItemData: Partial<DataGridFilter>) => void;
   updateSelectedFilters: (newSelectedFilters: DataGridFiltersType) => void;
-  updatePinnedFilters: (pinnedFilters: React.Key[]) => void;
+  updatePinnedFilters: (pinnedFilters: string[]) => void;
   initFiltersStore: (args: Omit<FiltersStore, 'actions'>) => void;
   resetFiltersStore: () => void;
 }
@@ -13,6 +13,6 @@ export interface FiltersStore {
   defaultFilters: DataGridFiltersType;
   selectedFilters: DataGridFiltersType;
   queryFilters: DataGridFiltersType;
-  pinnedFilters: React.Key[];
+  pinnedFilters: string[];
   actions: FilterActions;
 }

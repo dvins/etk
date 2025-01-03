@@ -11,24 +11,18 @@ export const transformToParameters = <TData>(args: {
   filters: DataGridFiltersType;
   sorting: DataGridSorter<TData>;
   paging: DataGridPaginationConfig;
-  columnToFieldMap: Record<
-    string,
-    {
-      filterField: string | string[];
-      sortField: string | string[];
-    }
-  >;
+  columnToFieldMap: Record<string, string>;
 }): DataGridParameters => {
   const { filters, sorting, paging } = args;
   return {
-    filters: Object.entries(filters).map(([columnKey, { value, operator }]) => ({
-      field: args.columnToFieldMap[columnKey]?.filterField,
+    filters: Object.entries(filters).map(([_filterKey, { field, value, operator }]) => ({
+      field,
       value,
       operator,
     })),
 
     sorting: (isArray(sorting) ? sorting : [sorting]).map(({ columnKey, order }) => ({
-      field: columnKey ? args.columnToFieldMap[columnKey]?.sortField : undefined,
+      field: columnKey ? args.columnToFieldMap[columnKey] : undefined,
       order,
     })),
 

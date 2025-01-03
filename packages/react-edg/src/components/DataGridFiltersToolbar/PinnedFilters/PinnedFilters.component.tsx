@@ -12,11 +12,11 @@ export const PinnedFilters: React.FC<PinnedFiltersProps> = ({ onSelectedFiltersC
   const { selectModeEnabled } = useSelectMode();
   const { filtersMap, selectedFilters, pinnedFilters, updateSelectedFilters } = useFilters();
 
-  const handleFilterChange = (columnKey: React.Key, value: DataGridFilterValue) => {
+  const handleFilterChange = (filterKey: React.Key, value: DataGridFilterValue) => {
     const validFilters = getValidFilters(
       {
         ...selectedFilters,
-        [columnKey]: value,
+        [filterKey]: value,
       },
       filtersMap,
     );
@@ -26,13 +26,13 @@ export const PinnedFilters: React.FC<PinnedFiltersProps> = ({ onSelectedFiltersC
 
   return (
     <>
-      {pinnedFilters.map((columnKey) => (
-        <Col key={columnKey} flex={filtersMap[columnKey].width}>
+      {pinnedFilters.map((filterKey) => (
+        <Col key={filterKey} flex={filtersMap[filterKey].width}>
           <DataGridFilterItem
             width="200px"
-            filter={filtersMap[columnKey]}
-            defaultValue={selectedFilters[columnKey]?.value}
-            value={selectedFilters[columnKey]?.value}
+            filter={filtersMap[filterKey]}
+            defaultValue={selectedFilters[filterKey]?.value}
+            value={selectedFilters[filterKey]?.value}
             disabled={selectModeEnabled}
             onChange={handleFilterChange}
           />

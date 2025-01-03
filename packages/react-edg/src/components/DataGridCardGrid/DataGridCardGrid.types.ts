@@ -26,6 +26,11 @@ export interface CardGridProps<TData extends TableData> {
   loading?: boolean;
 
   /**
+   * The message to display while the CardGrid component is in a loading state.
+   */
+  loadingMessage?: string;
+
+  /**
    * Specifies the pagination configuration for the CardGrid component.
    * Set to `false` to disable pagination.
    */

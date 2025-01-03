@@ -46,12 +46,14 @@ export type FilterRenderType<TData extends FilterOptionDataType = FilterOptionDa
   args: FilterRenderArgs<TData>,
 ) => JSX.Element;
 
+type FilterField = string | string[];
+
 export type BaseFilterConstructorArgs = {
+  key: string;
+  field: FilterField;
+  label?: string;
   component?: JSX.Element;
   operator?: DataGridFilterOperator;
-  columnKey?: string | number;
-  label?: string;
-  field?: string | string[];
   placeholder?: string;
   width?: string | number;
 };
@@ -59,29 +61,29 @@ export type BaseFilterConstructorArgs = {
 export type FilterValue = any;
 
 export type DataGridFilterChips = {
-  columnKey: React.Key;
+  key: string;
+  field: FilterField;
   label: string;
   data: {
     value: any;
     label: string;
   };
-  removeFilter: (
-    selectedFilters: DataGridFiltersType,
-    columnKey: React.Key,
-    value?: FilterValue,
-  ) => DataGridFiltersType;
+  removeFilter: (key: string, selectedFilters: DataGridFiltersType, value?: FilterValue) => DataGridFiltersType;
 };
 
 export type DataGridFilterValue = {
+  field: FilterField;
   value: FilterValue;
   operator: DataGridFilterOperator;
 };
 
-export type DataGridFiltersType = Record<React.Key, DataGridFilterValue>;
+export type DataGridFiltersType = {
+  [filterKey: string]: DataGridFilterValue;
+};
 
 export type DataGridFilter = {
-  columnKey: React.Key;
-  field?: string | string[];
+  key: string;
+  field: FilterField;
   label: string;
   labelIcon?: React.ReactNode;
   value?: FilterValue;

@@ -6,10 +6,10 @@ export const transformFiltersToQueryParams = (
   selectedFilters: DataGridFiltersType,
   filtersMap: Record<string, DataGridFilter>,
 ) => {
-  return Object.keys(selectedFilters).reduce<Record<string, any>>((queryFilterParams, columnKey) => {
-    const filterValue = selectedFilters[columnKey];
+  return Object.keys(selectedFilters).reduce<Record<string, any>>((queryFilterParams, filterKey) => {
+    const filterValue = selectedFilters[filterKey];
     /* Get the method to convert to query filter value */
-    const toFilterParams = filtersMap[columnKey]?.toFilterParams;
+    const toFilterParams = filtersMap[filterKey]?.toFilterParams;
     const value = toFilterParams ? toFilterParams(filterValue) : filterValue;
 
     if (isNil(value)) {
@@ -20,7 +20,7 @@ export const transformFiltersToQueryParams = (
 
     return {
       ...queryFilterParams,
-      [columnKey]: value,
+      [filterKey]: value,
     };
   }, {});
 };

@@ -42,8 +42,10 @@ export function DataGrid<TData extends TableData>({
   rowKey,
   title,
   columnBuilders,
+  filterBuilders = [],
   data,
   loading,
+  loadingMessage,
   loadingError,
   contextMenu,
   toolbarConfig = defaultToolbarConfig,
@@ -79,7 +81,7 @@ export function DataGrid<TData extends TableData>({
     selectedFilters,
     updatePinnedFilters,
     updateSelectedFilters,
-  } = useDataGridFilters<TData>(columns, initialFiltersQueryParams);
+  } = useDataGridFilters(filterBuilders, initialFiltersQueryParams);
   const { rowSelection, renderSelectableActions } = useSelectableRows(bulkActions);
   const [selectedView, setSelectedView] = useState<DataGridView<TData>>();
 
@@ -164,12 +166,16 @@ export function DataGrid<TData extends TableData>({
     setSorting(view.sorting);
     updatePinnedFilters(view.pinnedFilters);
     setTableKey(view.key);
-    jumpToFirstPage();
   };
 
   const handleViewChange = (view: DataGridView<TData>, initialView?: DataGridView<TData>) => {
     setSelectedView(view);
     updateDataGridOnViewChange(initialView ?? view);
+
+    // Jump to first page only if view already initialized
+    if (!initialView) {
+      jumpToFirstPage();
+    }
   };
 
   const resetToDefault = () => {
@@ -231,6 +237,7 @@ export function DataGrid<TData extends TableData>({
                   rowSelection={rowSelection}
                   dataSource={data.data}
                   loading={loading}
+                  loadingMessage={loadingMessage}
                   CardItem={CardItem}
                   pagination={pagination}
                   contextMenu={contextMenu}
@@ -249,6 +256,7 @@ export function DataGrid<TData extends TableData>({
                 contextMenu={contextMenu}
                 dataSource={data.data}
                 loading={loading}
+                loadingMessage={loadingMessage}
                 onChange={handleOnChange}
                 pagination={pagination}
                 onRowClick={onRowClick}

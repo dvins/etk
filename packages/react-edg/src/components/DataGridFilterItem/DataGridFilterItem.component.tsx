@@ -25,15 +25,15 @@ export const DataGridFilterItem: React.FC<DataGridFilterItemProps> = ({
   const { setError } = useErrorHandling();
 
   const updateFilterOptions = (options: FilterOptionType[]) => {
-    updateFilterItem(filter.columnKey, { options });
+    updateFilterItem(filter.key, { options });
   };
 
   const updateFilterSelectedOptions = (selectedOptions: FilterOptionType[]) => {
-    updateFilterItem(filter.columnKey, { selectedOptions });
+    updateFilterItem(filter.key, { selectedOptions });
   };
 
   const updateFilterLoading = (loading: boolean) => {
-    updateFilterItem(filter.columnKey, { loading });
+    updateFilterItem(filter.key, { loading });
   };
 
   const loadInitialOptions = async () => {
@@ -54,11 +54,12 @@ export const DataGridFilterItem: React.FC<DataGridFilterItemProps> = ({
   useEffect(() => void loadInitialOptions(), []);
 
   const handleFilterChange = (value: FilterValue) => {
-    if (!filter.columnKey) {
+    if (!filter.key) {
       return;
     }
 
-    onChange(filter.columnKey, {
+    onChange(filter.key, {
+      field: filter.field,
       value,
       operator: filter.operator,
     });

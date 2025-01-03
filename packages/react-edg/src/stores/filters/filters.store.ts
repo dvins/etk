@@ -20,10 +20,10 @@ const useStore = createWithEqualityFn(
     (set, get) => ({
       ...initialState,
       actions: {
-        updateFilterItem: (columnKey, filterItemData) => {
+        updateFilterItem: (filterKey, filterItemData) => {
           const filtersState = get().filters;
           const updatedFilters = filtersState.map((filter) => {
-            if (filter.columnKey === columnKey) {
+            if (filter.key === filterKey) {
               return {
                 ...filter,
                 ...filterItemData,
@@ -79,7 +79,7 @@ export const useFiltersStore: UseFiltersStore = () => {
   const filtersMap = filtersStore.filters.reduce<Record<string, DataGridFilter>>(
     (map, filter) => ({
       ...map,
-      [filter.columnKey]: filter,
+      [filter.key]: filter,
     }),
     {},
   );

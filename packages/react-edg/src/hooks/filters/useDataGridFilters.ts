@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFilters } from './useFilters';
 
 import type { BaseFilter } from '@datagrid/filter-builders';
-import type { DataGridColumn, DataGridFilter, DataGridFiltersType, TableData } from '@datagrid/types';
+import type { DataGridFilter, DataGridFiltersType } from '@datagrid/types';
 
 type UseDataGridFiltersReturn = {
   defaultFilters: DataGridFiltersType;
@@ -14,11 +14,11 @@ type UseDataGridFiltersReturn = {
   filtersInitialized: boolean;
   filtersFetched: boolean;
   updateSelectedFilters: (filters: DataGridFiltersType) => void;
-  updatePinnedFilters: (filters: React.Key[]) => void;
+  updatePinnedFilters: (filters: string[]) => void;
 };
 
-export const useDataGridFilters = <TData extends TableData>(
-  columns: DataGridColumn<TData>[],
+export const useDataGridFilters = (
+  filterBuilders: BaseFilter[],
   initQueryParams: Record<string, any>,
 ): UseDataGridFiltersReturn => {
   const {
@@ -33,20 +33,19 @@ export const useDataGridFilters = <TData extends TableData>(
   const [filtersInitialized, setFiltersInitialized] = useState(false);
 
   useEffect(() => {
-    const filterBuilders = columns.map((column) => column.filter).filter(Boolean) as BaseFilter[];
     const filters = filterBuilders.map((builder) => builder.buildFilter());
     const filtersMap = filters.reduce<Record<string, DataGridFilter>>(
       (map, filter) => ({
         ...map,
-        [filter.columnKey]: filter,
+        [filter.key]: filter,
       }),
       {},
     );
     const queryFilters = transformFiltersFromQueryParams(initQueryParams, filtersMap);
     const defaultFilters = getDefaultFilters(filters);
     const selectedFilters = isEmpty(queryFilters) ? defaultFilters : queryFilters;
-    const pinnedFilters = filters.reduce<React.Key[]>(
-      (pinnedFilters, filter) => (filter.showInToolbar ? [...pinnedFilters, filter.columnKey] : pinnedFilters),
+    const pinnedFilters = filters.reduce<string[]>(
+      (pinnedFilters, filter) => (filter.showInToolbar ? [...pinnedFilters, filter.key] : pinnedFilters),
       [],
     );
 

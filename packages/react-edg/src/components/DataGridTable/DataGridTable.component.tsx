@@ -33,6 +33,10 @@ export const DataGridTable = <TData extends TableData>({
         })}
         showSorterTooltip={tooltipProps}
         {...props}
+        loading={{
+          spinning: props.loading,
+          tip: props.loadingMessage,
+        }}
       />
     </Styled.Wrapper>
   );

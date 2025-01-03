@@ -43,10 +43,10 @@ export const DataGridFiltersPanel: React.FC<DataGridFiltersPanelProps> = ({
     onSelectedFiltersChange();
   };
 
-  const handleFilterChange = (columnKey: React.Key, value: DataGridFilterValue) => {
+  const handleFilterChange = (filterKey: React.Key, value: DataGridFilterValue) => {
     setInterimSelectedFilters((prevFilters) => ({
       ...prevFilters,
-      [columnKey]: value,
+      [filterKey]: value,
     }));
   };
 
@@ -86,20 +86,20 @@ export const DataGridFiltersPanel: React.FC<DataGridFiltersPanelProps> = ({
 
   const filterItems = useMemo(() => {
     return searchedFilters.map((filter) => {
-      const { columnKey } = filter;
+      const { key: filterKey } = filter;
       const showFilter = filter.showInPanel;
 
       if (!showFilter) {
         return null;
       }
 
-      const defaultValue = selectedFilters[columnKey]?.value;
-      const value = interimSelectedFilters[columnKey]?.value;
-      const pinned = pinnedFilters.includes(columnKey);
+      const defaultValue = selectedFilters[filterKey]?.value;
+      const value = interimSelectedFilters[filterKey]?.value;
+      const pinned = pinnedFilters.includes(filterKey);
 
       return (
         <DataGridFilterItem
-          key={columnKey}
+          key={filterKey}
           filter={filter}
           onChange={handleFilterChange}
           defaultValue={defaultValue}

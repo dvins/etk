@@ -70,7 +70,7 @@ export const CollapsedFiltersChips: React.FC<CollapsedFiltersChipsProps> = ({ fi
       {displayedFiltersChips.map((filterChips) => (
         <FilterChipsItem
           {...filterChips}
-          key={`${filterChips.columnKey}_${filterChips.data.value}`}
+          key={`${filterChips.key}_${filterChips.data.value}`}
           closable={itemClosable}
           onFilterChipsRemove={removeFilter(filterChips)}
         />

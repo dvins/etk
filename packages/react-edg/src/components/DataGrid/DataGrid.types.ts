@@ -1,4 +1,5 @@
 import type { BaseColumn } from '@datagrid/column-builders';
+import type { BaseFilter } from '@datagrid/filter-builders';
 import type {
   ContextMenuConfig,
   DataGridBulkActionsConfig,
@@ -27,6 +28,10 @@ export interface DataGridProps<TData extends TableData>
    */
   columnBuilders: BaseColumn<TData>[];
   /**
+   * An array of filter builders to define the filters of the data grid.
+   */
+  filterBuilders?: BaseFilter[];
+  /**
    * The data source for the data grid, containing the list of data items to be displayed and total count.
    */
   data: {
@@ -34,13 +39,17 @@ export interface DataGridProps<TData extends TableData>
     totalCount: number;
   };
   /**
-   * Error encountered while loading data.
-   */
-  loadingError?: unknown;
-  /**
    * Specifies whether the data grid is in a loading state.
    */
   loading?: boolean;
+  /**
+   * The message to display while the data grid is in a loading state.
+   */
+  loadingMessage?: string;
+  /**
+   * Error encountered while loading data.
+   */
+  loadingError?: unknown;
   /**
    * Toolbar buttons configuration. On `false`, the toolbar won't display on the _DataGrid_.
    *

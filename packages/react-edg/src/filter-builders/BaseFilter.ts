@@ -22,6 +22,16 @@ import type {
  */
 export abstract class BaseFilter {
   /**
+   * The uniq key of the filter that will be used to identify the filter.
+   */
+  protected key: string;
+
+  /**
+   * The field of the filter.
+   */
+  protected field: string | string[];
+
+  /**
    * The filter render function.
    */
   protected render?: FilterRenderType;
@@ -36,11 +46,6 @@ export abstract class BaseFilter {
    */
   protected placeholder?: string;
 
-  /**
-   * The field of the filter.
-   */
-  protected field?: string | string[];
-
   /*
    * The icon for the filter label.
    */
@@ -50,11 +55,6 @@ export abstract class BaseFilter {
    * The flex width of the filter.
    */
   protected width?: string | number;
-
-  /**
-   * The key of the column associated with the filter.
-   */
-  protected columnKey?: React.Key;
 
   /**
    * The operator for the filter that should be used in different data providers to generate filter parameters.
@@ -114,7 +114,9 @@ export abstract class BaseFilter {
    * Constructs a new instance of Filter builder.
    * @param filter - The base filter configuration.
    */
-  constructor(filter?: BaseFilterConstructorArgs) {
+  constructor(filter: BaseFilterConstructorArgs) {
+    this.field = filter.field;
+    this.key = filter.key;
     this.showInFiltersPanel = true;
     this.showInFiltersToolbar = false;
     this.operator = 'eq';
@@ -154,17 +156,6 @@ export abstract class BaseFilter {
    */
   useWidth(width: string | number): this {
     this.width = width;
-
-    return this;
-  }
-
-  /**
-   * Sets the column key associated with the filter.
-   * @param key - The column key.
-   * @returns The instance of the BaseFilter class.
-   */
-  useColumnKey(key: React.Key): this {
-    this.columnKey = key;
 
     return this;
   }
@@ -211,16 +202,6 @@ export abstract class BaseFilter {
   useDefaultValue(defaultValue: FilterValue): this {
     this.defaultValue = defaultValue;
 
-    return this;
-  }
-
-  /**
-   * Sets the operator for the filter that should be used in different data providers to generate filter parameters.
-   * @param operator - The operator for the filter.
-   * @returns The instance of the BaseFilter class.
-   */
-  useOperator(operator: DataGridFilterOperator): this {
-    this.operator = operator;
     return this;
   }
 
@@ -293,7 +274,8 @@ export abstract class BaseFilter {
    */
   private getBaseFilterChips(value: FilterValue): DataGridFilterChips {
     return {
-      columnKey: this.columnKey!,
+      key: this.key,
+      field: this.field,
       label: this.label!,
       data: {
         value,
@@ -380,9 +362,13 @@ export abstract class BaseFilter {
     };
   }
 
+  // private getFlattenField(): string {
+  //   return Array.isArray(this.field) ? this.field.join('.') : this.field;
+  // }
+
   buildFilter(): DataGridFilter {
     return {
-      columnKey: this.columnKey!,
+      key: this.key,
       field: this.field,
       label: this.label!,
       labelIcon: this.labelIcon,

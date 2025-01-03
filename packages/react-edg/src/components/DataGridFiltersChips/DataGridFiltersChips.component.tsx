@@ -11,22 +11,22 @@ export const DataGridFiltersChips: React.FC<DataGridFiltersChipsProps> = ({ onSe
   const { selectedFilters, filtersMap, updateSelectedFilters } = useFiltersStore();
 
   const removeFilter = (filterChips: DataGridFilterChips) => () => {
-    const updatedFilters = filterChips.removeFilter(selectedFilters, filterChips.columnKey, filterChips.data.value);
+    const updatedFilters = filterChips.removeFilter(filterChips.key, selectedFilters, filterChips.data.value);
     updateSelectedFilters(updatedFilters);
     onSelectedFiltersChange();
   };
 
   const filtersChips = useMemo(() => {
     return flatten(
-      Object.keys(selectedFilters).map((columnKey) => {
-        const filterValue = selectedFilters[columnKey]?.value;
+      Object.keys(selectedFilters).map((filterKey) => {
+        const filterValue = selectedFilters[filterKey]?.value;
 
-        const filter = filtersMap[columnKey];
+        const filter = filtersMap[filterKey];
         const options = filter?.options ?? [];
         const selectedOptions = filter?.selectedOptions ?? [];
         const filterOptions = uniq([...options, ...selectedOptions]);
 
-        return filtersMap[columnKey].toFilterChips(filterValue, filterOptions);
+        return filtersMap[filterKey].toFilterChips(filterValue, filterOptions);
       }),
     );
   }, [filtersMap, selectedFilters]);

@@ -9,7 +9,7 @@ type InitAllFiltersArgs = {
   defaultFilters: DataGridFiltersType;
   queryFilters: DataGridFiltersType;
   selectedFilters: DataGridFiltersType;
-  pinnedFilters: React.Key[];
+  pinnedFilters: string[];
 };
 
 type UseFiltersReturn = {
@@ -18,9 +18,9 @@ type UseFiltersReturn = {
   defaultFilters: DataGridFiltersType;
   queryFilters: DataGridFiltersType;
   selectedFilters: DataGridFiltersType;
-  pinnedFilters: React.Key[];
+  pinnedFilters: string[];
   updateSelectedFilters: (newSelectedFilters: DataGridFiltersType) => void;
-  updatePinnedFilters: (pinnedFilters: React.Key[]) => void;
+  updatePinnedFilters: (pinnedFilters: string[]) => void;
   initAllFilters: (args: InitAllFiltersArgs) => void;
   resetAllFilters: () => void;
 };
@@ -29,17 +29,17 @@ export const useFilters = (): UseFiltersReturn => {
   const { filters, updatePinnedFilters, initFiltersStore, resetFiltersStore, ...filtersStore } = useFiltersStore();
 
   const preservedPinnedFilters = useMemo(() => {
-    return filters.reduce<React.Key[]>((pinnedFilters, filter) => {
+    return filters.reduce<string[]>((pinnedFilters, filter) => {
       const pinned = filter.showInToolbar;
       const hiddenInPanel = !filter.showInPanel;
 
-      return pinned && hiddenInPanel ? [...pinnedFilters, filter.columnKey] : pinnedFilters;
+      return pinned && hiddenInPanel ? [...pinnedFilters, filter.key] : pinnedFilters;
     }, []);
   }, [filters]);
 
-  const setPinnedFilters = (pinnedFilters: React.Key[]) => {
-    const orderedPinnedFilters = filters.reduce<React.Key[]>((filters, filter) => {
-      return pinnedFilters.includes(filter.columnKey) ? [...filters, filter.columnKey] : filters;
+  const setPinnedFilters = (pinnedFilters: string[]) => {
+    const orderedPinnedFilters = filters.reduce<string[]>((filters, filter) => {
+      return pinnedFilters.includes(filter.key) ? [...filters, filter.key] : filters;
     }, []);
 
     /* removing duplicates in case of mismatch  */

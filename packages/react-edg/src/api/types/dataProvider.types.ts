@@ -34,6 +34,7 @@ export interface DataProviderListResponse<TData> {
 }
 
 export interface DataProvider<TData, TMeta extends DataProviderMeta> {
+  loadingMessage?: string;
   generateVariablesFromParams(params: DataProviderParams): Record<string, any>;
   list(params: DataProviderListParams, meta: TMeta, signal?: AbortSignal): Promise<DataProviderListResponse<TData>>;
   create?(params: DataProviderCreateParams, meta: TMeta): Promise<TData | undefined>;
@@ -66,9 +67,18 @@ export interface NestjsQueryDataProviderOptions {
 
 export type CubejsTimeDimension = TimeDimension;
 
+/**
+ * Interface representing the metadata for a Cube.js data provider.
+ *
+ * @property measures - An array of measures to be queried.
+ * @property dimensions - An optional array of dimensions to be queried.
+ * @property filters - Optional filters that will be combined with the filters from the Data Grid parameters.
+ * @property timezone - An optional timezone string to be used for the query.
+ */
 export interface CubejsDataProviderMeta {
   measures: Query['measures'];
   dimensions?: Query['dimensions'];
+  filters?: Query['filters'];
   timezone?: Query['timezone'];
 }
 

@@ -1,4 +1,3 @@
-import type { BaseFilter } from '@datagrid/filter-builders';
 import type { TableColumnType } from 'antd';
 import type { ReactNode } from 'react';
 
@@ -13,7 +12,6 @@ export type DataGridColumn<TData> = TableColumnType<TData> & {
   dataIndex?: string | string[];
   hidden?: boolean;
   group?: string;
-  filter?: BaseFilter;
   exportHeaderLabel?: string;
   /**
    * Must be used when the title column is a `ReactNode`.

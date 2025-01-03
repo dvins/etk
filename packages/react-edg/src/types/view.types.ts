@@ -39,6 +39,6 @@ export type DataGridView<TData extends TableData> = {
   key: string;
   columns: DataGridColumn<TData>[];
   selectedFilters: DataGridFiltersType;
-  pinnedFilters: React.Key[];
+  pinnedFilters: string[];
   sorting: DataGridSorterResult<TData>[];
 };
