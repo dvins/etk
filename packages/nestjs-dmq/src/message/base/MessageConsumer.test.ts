@@ -1,3 +1,4 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Queue } from 'bullmq';
 
 import { ILogger } from '@omedym/nestjs-telemetry';
@@ -15,10 +16,10 @@ describe('Consumer', () => {
   });
 
   const logger = {
-    debug: jest.fn((msg, data ) => logEntries.push({ msg: `[debug] ${msg}`, data })),
-    error: jest.fn((msg, data ) => logEntries.push({ msg: `[error] ${msg}`, data })),
-    info:  jest.fn((msg, data ) => logEntries.push({ msg: ` [info] ${msg}`, data })),
-    warn:  jest.fn((msg, data ) => logEntries.push({ msg: ` [warn] ${msg}`, data })),
+    debug: vi.fn((msg, data ) => logEntries.push({ msg: `[debug] ${msg}`, data })),
+    error: vi.fn((msg, data ) => logEntries.push({ msg: `[error] ${msg}`, data })),
+    info:  vi.fn((msg, data ) => logEntries.push({ msg: ` [info] ${msg}`, data })),
+    warn:  vi.fn((msg, data ) => logEntries.push({ msg: ` [warn] ${msg}`, data })),
   } as unknown as ILogger;
 
   interface ITestData {}
@@ -81,8 +82,8 @@ describe('Consumer', () => {
   const message_a = new TestMessageA().with(tenantId, '', data).build();
   const message_b = new TestMessageB().with(tenantId, '', data).build();
 
-  const queue: Queue = jest.mocked<Queue>({
-    add: jest.fn(),
+  const queue: Queue = vi.mocked<Queue>({
+    add: vi.fn(),
   } as unknown as Queue)
 
   it('checks if a message is allowed', () => {

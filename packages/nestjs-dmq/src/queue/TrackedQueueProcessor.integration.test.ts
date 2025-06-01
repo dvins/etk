@@ -1,4 +1,5 @@
-import { Runfiles } from '@bazel/runfiles';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+// import { Runfiles } from '@bazel/runfiles';
 import { InjectQueue, BullModule, Processor, OnQueueEvent, QueueEventsListener, QueueEventsHost } from '@nestjs/bullmq';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -48,7 +49,7 @@ const TestConfig = {
     showLogs: process.env.TESTCONFIG__BULLMQ__SHOWLOGS
       ? Boolean(process.env.TESTCONFIG__BULLMQ__SHOWLOGS) : true,
   },
-  jest: {
+  vi: {
     timeoutMs: process.env.TESTCONFIG__JEST__TIMEOUT_MS
       ? Number(process.env.TESTCONFIG__JEST__TIMEOUT_MS) : 1000 * 10,
   },
@@ -69,22 +70,22 @@ SentryService.init({
   dsn: TestConfig.sentry.dsn,
 });
 
-const runfiles = new Runfiles(process.env);
+// const runfiles = new Runfiles(process.env);
 const execAsync = promisify(exec);
 
 const mockLogger = {
-  requestLogger: jest.fn(),
-  matchFilePartRegEx: jest.fn(),
-  info: jest.fn(),
+  requestLogger: vi.fn(),
+  matchFilePartRegEx: vi.fn(),
+  info: vi.fn(),
   // info: (x: any) => console.info(x),
-  // log: jest.fn(),
-  // warn: jest.fn(),
+  // log: vi.fn(),
+  // warn: vi.fn(),
   warn: (x: any, y: any) => console.warn(x, y),
-  // error: jest.fn(),
+  // error: vi.fn(),
   error: (message: string, error: Error) => console.error(message, error),
-  debug: jest.fn(),
+  debug: vi.fn(),
   // debug: (x: any, y: any) => console.debug(x, y),
-  apply: jest.fn(),
+  apply: vi.fn(),
 } as unknown as NestjsLogger;
 
 /** Monitor A BullMQ Queue Using BullMQ Queue Events */
@@ -166,7 +167,7 @@ const generateTestMessage = (data: IMessage | IUnknownMessage = {}): MessageJobD
 }};
 
 describe('TrackedProcessor', () => {
-  jest.setTimeout(TestConfig.jest.timeoutMs);
+  // vi.setTimeout(TestConfig.vi.timeoutMs);
 
   let testNum = 0;
 
@@ -201,16 +202,16 @@ describe('TrackedProcessor', () => {
 
     return {
       console: {
-        info: jest.spyOn(mockLogger, 'info'),
+        info: vi.spyOn(mockLogger, 'info'),
       },
       queue: {
-        onLog: jest.spyOn(target.queueListener, 'log'),
-        onAdded: jest.spyOn(target.queueListener, 'onAdded'),
-        onCompleted: jest.spyOn(target.queueListener, 'onCompleted'),
-        onDelayed: jest.spyOn(target.queueListener, 'onDelayed'),
-        onError: jest.spyOn(target.queueListener, 'onError'),
-        onPaused: jest.spyOn(target.queueListener, 'onPaused'),
-        onResumed: jest.spyOn(target.queueListener, 'onResumed'),
+        onLog: vi.spyOn(target.queueListener, 'log'),
+        onAdded: vi.spyOn(target.queueListener, 'onAdded'),
+        onCompleted: vi.spyOn(target.queueListener, 'onCompleted'),
+        onDelayed: vi.spyOn(target.queueListener, 'onDelayed'),
+        onError: vi.spyOn(target.queueListener, 'onError'),
+        onPaused: vi.spyOn(target.queueListener, 'onPaused'),
+        onResumed: vi.spyOn(target.queueListener, 'onResumed'),
       },
 
       showListenerLogs: (warn: boolean = false) => (warn || TestConfig.bullMq.showLogs)
@@ -238,7 +239,8 @@ describe('TrackedProcessor', () => {
     const postgresHost = postgres.getHost();
     const postgresPort = postgres.getMappedPort(TestConfig.postgres.port);
 
-    const prismaSchemaPath = runfiles.resolveWorkspaceRelative('datastores/nestjs-dmq-postgres/prisma');
+    // const prismaSchemaPath = runfiles.resolveWorkspaceRelative('datastores/nestjs-dmq-postgres/prisma');
+    const prismaSchemaPath = `../../../../datastore/nestjs-dmq-postgres`;
     const prismaSchemaFile = `${prismaSchemaPath}/schema.prisma`;
 
     DATABASE_URL_POSTGRES = `postgresql://postgres`
@@ -248,7 +250,7 @@ describe('TrackedProcessor', () => {
     const PRISMA_QUERY_ENGINE_LIBRARY = `${prismaSchemaPath}`;
 
     const pushSchemaResult = await execAsync(
-      `npx prisma db push --schema "${prismaSchemaFile}" --skip-generate`,
+      `pnpm prisma db push --schema "${prismaSchemaFile}" --skip-generate`,
       { env: { ...env, DATABASE_URL_POSTGRES, PRISMA_QUERY_ENGINE_LIBRARY }},
     );
 
@@ -256,7 +258,7 @@ describe('TrackedProcessor', () => {
   });
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
 
     testNum++;
     const QUEUE_NAME = `test_${testNum}`;
@@ -382,7 +384,7 @@ describe('TrackedProcessor', () => {
 
     it('CANNOT receive event: paused', async () => {
       const spies = insertQueueSpies();
-      // const onPaused = jest.spyOn(listener, '_onPaused');
+      // const onPaused = vi.spyOn(listener, '_onPaused');
       await processor.worker.pause(true);
 
       expect(processor.worker.isPaused()).toBe(true);

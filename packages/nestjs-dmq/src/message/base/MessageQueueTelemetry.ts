@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { ScopeData } from '@sentry/types';
+import { ScopeData } from '@sentry/core';
 
 import { ILogger, ContextAttributes, NestjsLogger, getLogContext } from '@omedym/nestjs-telemetry';
 
@@ -73,7 +73,7 @@ export function setMessageQueueTelemetry<
   };
 
   // Enrich the Sentry scope
-  Sentry.setTags(sentryTags);
+  Sentry.getCurrentScope().setTags(sentryTags);
 
   // Build the BullMQ integrated job logger
   const queueLogger = buildQueueLogger(logger, {

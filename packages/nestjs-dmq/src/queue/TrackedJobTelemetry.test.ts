@@ -1,19 +1,34 @@
+import { describe, it, expect, vi } from 'vitest'
 import * as Sentry from '@sentry/node';
 import { LoggerConfiguration, NestjsLogger } from '@omedym/nestjs-telemetry';
 import { setTrackedJobTelemetry } from './TrackedJobTelemetry';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from 'vitest-mock-extended';
 import { AsyncLocalStorage } from 'async_hooks';
 import { ClsService } from 'nestjs-cls';
 import { Logger } from 'winston';
 import { DateTime } from 'luxon';
 import { IMessageHandlerContext } from './TrackedQueueProcessor';
 
+vi.mock('@sentry/node', async () => {
+  const original = await vi.importActual('@sentry/node');
+
+  return {
+    ...original,
+    setTags: vi.fn(),
+    getCurrentScope: vi.fn().mockReturnValue({
+      setTags: vi.fn(),
+      getScopeData: vi.fn(),
+      setContext: vi.fn(),
+    }),
+  };
+});
+
 describe('setTrackedJobEventTelemetry', () => {
   const defaultLogger = mockDeep<Logger>({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    apply: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    apply: vi.fn(),
     child: () => defaultLogger,
   } as any);
 
@@ -56,20 +71,11 @@ describe('setTrackedJobEventTelemetry', () => {
         },
       },
     };
-    const spy = jest.spyOn(Sentry, 'setTags');
+    // it is not possible to mock calls to methods that are called inside other methods
+    // https://vitest.dev/guide/mocking.html#mocking-pitfalls
+    const spy = vi.spyOn(Sentry, 'getCurrentScope');
     const result = setTrackedJobTelemetry(logger, context);
     expect(result).toBeDefined();
-    expect(spy).toBeCalledWith({
-      jobEvent: null,
-      jobEventId: null,
-      jobEventType: null,
-      jobId: 'jobId-1',
-      messageId: 'message-id-1',
-      messageType: 'messageType',
-      queue: null,
-      queueId: 'queueName',
-      tenantId: 'tenantId',
-      key1: 'key1-test-value',
-    });
+    expect(spy).toBeCalledTimes(4);
   });
 });

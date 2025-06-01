@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { createId } from '@paralleldrive/cuid2';
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { DateTime } from 'luxon';
+import { process } from 'node:process';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 

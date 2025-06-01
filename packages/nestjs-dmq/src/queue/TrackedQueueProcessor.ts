@@ -85,7 +85,7 @@ export abstract class TrackedQueueProcessor<
   @SentryTransaction({ op: 'onWorkerEvent-error', clearContextFor: DefaultClearContext })
   async onError(error: Error) {
     try {
-      const logMsg = `Processor Error: ${error?.message }`;
+      const logMsg = `Processor Error: ${error?.name ?? error?.message }`;
       this.logger.debug(logMsg);
 
       const errMsg = error?.message.toLowerCase() ?? '';
@@ -129,7 +129,7 @@ export abstract class TrackedQueueProcessor<
     }
 
     const { jobLogger } = setTrackedJobTelemetry(this.logger, { job, message: job.data as T });
-    jobLogger.warn(`Queue Job Failed: ${error?.message}`, { error });
+    jobLogger.warn(`Queue Job Failed: ${error?.name ?? error?.message}`, { error });
     await this.jobEventQueue.trackFailed(job, error, prev);
   };
 

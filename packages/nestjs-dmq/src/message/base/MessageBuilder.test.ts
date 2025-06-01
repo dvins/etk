@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { IEvent, IEventDefinition, IEventMetadata } from '../Event';
 import { AbstractMessageBuilder } from './MessageBuilder';
 

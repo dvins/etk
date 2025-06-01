@@ -1,4 +1,8 @@
 {
-  // This is required for VSCode Intellisense
-  "extends": "../../tsconfig.base.json"
+  "extends": "../../../../tsconfig.turbo.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules",  "src/**/*.test.ts"]
 }

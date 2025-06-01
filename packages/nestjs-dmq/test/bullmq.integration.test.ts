@@ -1,3 +1,4 @@
+import { afterAll, afterEach, beforeAll, beforeEach, describe, it, expect, vi } from 'vitest'
 import {
   InjectQueue,
   BullModule,
@@ -33,7 +34,7 @@ const TestConfig = {
     showLogs: process.env.TESTCONFIG__BULLMQ__SHOWLOGS
       ? Boolean(process.env.TESTCONFIG__BULLMQ__SHOWLOGS) : false,
   },
-  jest: {
+  vi: {
     timeoutMs: process.env.TESTCONFIG__JEST__TIMEOUT_MS
       ? Number(process.env.TESTCONFIG__JEST__TIMEOUT_MS) : 1000 * 10,
   },
@@ -152,7 +153,7 @@ class QueueListener extends QueueEventsHost {
 }
 
 describe('BullMQ Processor', () => {
-  jest.setTimeout(TestConfig.jest.timeoutMs);
+  // vi.setTimeout(TestConfig.vi.timeoutMs);
 
   let testNum = 0;
 
@@ -174,19 +175,19 @@ describe('BullMQ Processor', () => {
 
     return {
       console: {
-        info: jest.spyOn(global.console, 'info'),
+        info: vi.spyOn(global.console, 'info'),
       },
       queue: {
-        onLog: jest.spyOn(target.queueListener, 'log'),
-        onAdded: jest.spyOn(target.queueListener, 'onAdded'),
-        onCompleted: jest.spyOn(target.queueListener, 'onCompleted'),
-        onDelayed: jest.spyOn(target.queueListener, 'onDelayed'),
-        onError: jest.spyOn(target.queueListener, 'onError'),
-        onPaused: jest.spyOn(target.queueListener, 'onPaused'),
-        onResumed: jest.spyOn(target.queueListener, 'onResumed'),
+        onLog: vi.spyOn(target.queueListener, 'log'),
+        onAdded: vi.spyOn(target.queueListener, 'onAdded'),
+        onCompleted: vi.spyOn(target.queueListener, 'onCompleted'),
+        onDelayed: vi.spyOn(target.queueListener, 'onDelayed'),
+        onError: vi.spyOn(target.queueListener, 'onError'),
+        onPaused: vi.spyOn(target.queueListener, 'onPaused'),
+        onResumed: vi.spyOn(target.queueListener, 'onResumed'),
       },
       external: {
-        getResult: jest.spyOn(target.externalService, 'getResult')
+        getResult: vi.spyOn(target.externalService, 'getResult')
       },
 
       showListenerLogs: (warn: boolean = false) => (warn || TestConfig.bullMq.showLogs)

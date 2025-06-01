@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import redis from 'async-redis';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 

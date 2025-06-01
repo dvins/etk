@@ -1,0 +1,69 @@
+{
+  "name": "@omedym/nestjs-dmq",
+  "version": "5.0.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "engines": {
+    "node": ">=22.0"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "build": "pnpm check-types && tsup src/index.ts --format cjs,esm --dts --clean --sourcemap",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:integration": "vitest run --config ../../../../vitest.integration.config.ts",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@nestjs/bullmq": "^10.2.2",
+    "@nestjs/common": "^10.4.8",
+    "@nestjs/core": "^10.4.8",
+    "@omedym/nestjs-telemetry": "workspace:*",
+    "@omedym/nestjs-dmq-datastore-client-postgres": "workspace:*",
+    "@opentelemetry/api": "1.9.0",
+    "@paralleldrive/cuid2": "^2.2.0",
+    "@sentry/core": "^9.11.0",
+    "@sentry/node": "^9.11.0",
+    "@vvo/tzdb": "^6.108.0",
+    "ajv": "^6.12.6",
+    "bullmq": "^5.29.1",
+    "cloudevents": "^7.0.1",
+    "cron-validator": "^1.3.1",
+    "luxon": "^2.5.2",
+    "safe-stable-stringify": "^2.4.3",
+    "ts-pattern": "^4.3.0",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^10.4.8",
+    "@swc/core": "^1.11.18",
+    "@types/luxon": "^2.4.0",
+    "@types/node": "^22",
+    "@vitest/coverage-v8": "^3.1.1",
+    "async-redis": "^2.0.0",
+    "nestjs-cls": "^4.4.1",
+    "sentry-testkit": "^5.0.5",
+    "tsup": "^8.4.0",
+    "vitest": "^3.1.1",
+    "vitest-mock-extended": "^3.1.0",
+    "winston": "^3.8.1"
+  },
+  "keywords": [
+    "nestjs",
+    "bullmq",
+    "messaging"
+  ]
+}

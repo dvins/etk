@@ -283,7 +283,7 @@ export class TrackedJobEventProcessor extends TypedWorkerHost<TrackedJobEventDat
       metadata: {
         ...event.metadata,
         ...(update.progress ? { progress: update.progress } : {}),
-        attemptsMade: jobAndLog.job?.attemptsMade,
+        attemptsMade: jobAndLog.job?.attemptsMade ?? 0,
         queueId: event.queueId,
       },
 
@@ -321,7 +321,7 @@ export class TrackedJobEventProcessor extends TypedWorkerHost<TrackedJobEventDat
 
     await job.moveToDelayed(runAt.toMillis(), job.token);
     await job.updateProgress({
-      attemptsMade: job.attemptsMade,
+      attemptsMade: job?.attemptsMade ?? 0,
       delay: runAt.minus(DateTime.now()).toMillis(),
       jobId: job.id,
       jobEventId: context.jobEventId,

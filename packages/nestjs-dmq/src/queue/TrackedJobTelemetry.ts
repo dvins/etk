@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import { ScopeData } from '@sentry/types';
+import { ScopeData } from '@sentry/core';
 import { Job } from 'bullmq';
 import { DateTime } from 'luxon';
 import stableStringify from 'safe-stable-stringify';
@@ -12,7 +12,8 @@ import { TrackedJobEventContext, TrackedJobEventData } from './TrackedJobEventDa
 
 
 const {
-  NESTJS_DMQ__QUEUE_SUFFIX = '',
+  REDIS_QUEUE_SUFFIX = '',
+  NESTJS_DMQ__QUEUE_SUFFIX = REDIS_QUEUE_SUFFIX,
 } = process.env;
 
 export const QueueSuffix = NESTJS_DMQ__QUEUE_SUFFIX ? `-${NESTJS_DMQ__QUEUE_SUFFIX}` : undefined;
@@ -138,9 +139,9 @@ export function setTrackedJobTelemetry<T extends IMessage | IUnknownMessage>(
   const sentryContext = JSON.parse(stableStringify(contextObj, null, 2));
 
   // Enrich the Sentry scope
-  Sentry.setTags(sentryTags);
-  Sentry.setContext('Tracked Job Event', null);
-  Sentry.setContext('Tracked Job', sentryContext);
+  Sentry.getCurrentScope().setTags(sentryTags);
+  Sentry.getCurrentScope().setContext('Tracked Job Event', null);
+  Sentry.getCurrentScope().setContext('Tracked Job', sentryContext);
 
   const logContext = {
     ...(sentryTags as any),
@@ -187,9 +188,9 @@ export function setTrackedJobEventTelemetry(
   };
 
   // Enrich the Sentry scope
-  Sentry.setTags(sentryTags);
-  Sentry.setContext('Tracked Job', null);
-  Sentry.setContext('Tracked Job Event', sentryContext);
+  Sentry.getCurrentScope().setTags(sentryTags);
+  Sentry.getCurrentScope().setContext('Tracked Job', null);
+  Sentry.getCurrentScope().setContext('Tracked Job Event', sentryContext);
 
   // Build the BullMQ integrated job logger
   const jobLogger = buildJobLogger(logger, job, logContext);

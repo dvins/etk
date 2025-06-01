@@ -149,7 +149,7 @@ export abstract class AbstractTaskGateway<
 
     // Remove existing versions that match either the configuration (based on a hash of the
     // message data or its name.
-    await this.removeExistingRepeatableJobs({ id: jobId, name: jobName });
+    await this.removeExistingRepeatableJobs({ id: jobId, name: jobName, type: task.type });
 
     // Add the new repeatable job to the queue
     return this.add(task, jobOptions, jobName);
@@ -215,16 +215,18 @@ export abstract class AbstractTaskGateway<
    * @param id
    * @param name
    */
-  protected async removeExistingRepeatableJobs({ id, name }: { id: string; name: string; }) {
-    this.logger.debug(`Checking for existing repeatable job with jobId: ${id} or name: ${name}`);
+  protected async removeExistingRepeatableJobs({ id, name, type }: { id: string; name: string; type: string }) {
+    this.logger.debug(`Checking for existing repeatable job with jobId: ${id} or name: ${name} or type: ${type}`);
 
     const jobs = await this.queue.getRepeatableJobs();
     this.logger.debug(`Retrieved ${jobs && jobs.length} repeatable jobs`)
 
     jobs.map(async (job) => {
-      this.logger.debug(`Reviewing repeatable jobId: ${job.id} jobName:${job.name}`, { job });
+      this.logger.debug(`Reviewing repeatable jobId: ${job.id} jobName:${job.name}, key: ${job.key}`, { job });
 
-      if (!job.id?.includes(id) && !(job.name === name))
+      // remove job if name includes type because
+      // jobName is type + frequency, if frequency is changed, it's a new name and the old one is not removed
+      if (!job.id?.includes(id) && !(job.name === name) && !(job.name?.includes(type)))
         return;
 
       this.logger.info(`Removing prior repeatable job definition ${job.name}`);

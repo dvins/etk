@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { IMessage } from './Message';
 import { IAllowAdditionalProperties } from './MessageData';
 

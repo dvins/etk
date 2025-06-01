@@ -102,7 +102,7 @@ export class TrackedJobEventQueue {
   }
 
   async buildTrackEventFromWorkerEvent(job: Job, prev?: string): Promise<TrackedJobEventData> {
-    const progress = this.recalcProgress(job.progress);
+    const progress = this.recalcProgress(Number(job.progress));
     const event: TrackedJobEventData = {
       queueId: job.queueName,
       tenantId: job.data.tenantid || 'SYSTEM',
@@ -111,7 +111,7 @@ export class TrackedJobEventQueue {
       state: await job.getState() as JobState,
       statePrev: prev ? prev as JobState : JobState.unknown,
       metadata: {
-        attemptsMade: job.attemptsMade,
+        attemptsMade: job?.attemptsMade ?? 0,
         receivedAt: DateTime.now().toISO(),
         ...( job.failedReason ? { failedReason: job.failedReason } : {} ),
         ...( progress ? { progress } : {} ),

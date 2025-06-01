@@ -1,5 +1,6 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Queue } from 'bullmq';
-import { MockProxy, mock } from 'jest-mock-extended';
+import { MockProxy, mock } from 'vitest-mock-extended';
 
 import { ILogger } from '@omedym/nestjs-telemetry';
 
@@ -11,16 +12,16 @@ describe('TaskGateway', () => {
 
   let logEntries: { msg: string; data: any }[] = [];
   const logger = {
-    debug: jest.fn((msg, data) => logEntries.push({ msg: `[debug] ${msg}`, data })),
-    error: jest.fn((msg, data) => logEntries.push({ msg: `[error] ${msg}`, data })),
-    info: jest.fn((msg, data) => logEntries.push({ msg: ` [info] ${msg}`, data })),
-    warn: jest.fn((msg, data) => logEntries.push({ msg: ` [warn] ${msg}`, data })),
+    debug: vi.fn((msg, data) => logEntries.push({ msg: `[debug] ${msg}`, data })),
+    error: vi.fn((msg, data) => logEntries.push({ msg: `[error] ${msg}`, data })),
+    info: vi.fn((msg, data) => logEntries.push({ msg: ` [info] ${msg}`, data })),
+    warn: vi.fn((msg, data) => logEntries.push({ msg: ` [warn] ${msg}`, data })),
   } as unknown as ILogger;
   let testTaskGateway: TestTaskGateway;
   const queue: MockProxy<Queue> = mock<Queue>();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     logEntries = [];
     testTaskGateway = new TestTaskGateway(queue, logger);
   });
