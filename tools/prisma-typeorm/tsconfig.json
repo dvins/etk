@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.turbo.json",
+  "compilerOptions": {
+    "incremental": false,
+  },
+}

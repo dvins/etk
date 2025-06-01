@@ -1,0 +1,48 @@
+{
+  "name": "@omedym/prisma-typeorm",
+  "description": "Generate TypeORM Entities and ViewEntities from Prisma Schema",
+  "version": "5.0.0",
+  "license": "MIT",
+  "main": "./dist/generator.js",
+  "types": "./dist/generator.d.ts",
+  "bin": {
+    "prisma-typeorm": "dist/generator.js"
+  },
+  "engines": {
+    "node": ">=22.0"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "build:tools": "tsup && pnpm copy-templates",
+    "copy-templates": "rimraf dist/templates && copyfiles --up 1 src/templates/*.hbs dist/"
+  },
+  "dependencies": {
+    "@base2/pretty-print-object": "^1.0.2",
+    "@prisma/generator-helper": "6.5.0",
+    "handlebars": "^4.7.8",
+    "handlebars-helpers": "^0.10.0",
+    "prettier": "^3.5.3",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.11.18",
+    "@types/handlebars-helpers": "^0.5.6",
+    "@types/node": "^22",
+    "@types/prettier": "^3.0.0",
+    "copyfiles": "^2.4.1",
+    "tsup": "^8.4.0"
+  },
+  "tsup": {
+    "clean": true,
+    "dts": true,
+    "entry": ["src/generator.ts"],
+    "format": ["cjs"],
+    "sourcemap": true,
+    "splitting": false
+  },
+  "keywords": [
+    "prisma",
+    "prisma2",
+    "generator"
+  ]
+}

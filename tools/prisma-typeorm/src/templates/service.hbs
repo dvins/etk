@@ -1,0 +1,14 @@
+import { QueryService } from '@ptc-org/nestjs-query-core'
+import { TypeOrmQueryService } from '@ptc-org/nestjs-query-typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { {{ entity }} } from './{{ entity }}.entity';
+
+@QueryService({{ entity }})
+export class {{ entity }}Service extends TypeOrmQueryService<{{ entity }}> {
+  constructor(
+  @InjectRepository({{ entity }}) repo: Repository<{{ entity }}>,
+    ) {
+      super(repo);
+    }
+}

@@ -1,0 +1,112 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
+  UpdateDateColumn,
+} from 'typeorm';
+{{#each imports }}
+  import { {{ this.name }} } from '{{ this.path }}'
+{{/each}}
+
+@Entity({
+  name: '{{ entityName }}',
+  /**
+   * **IMPORTANT**
+   * This option must always be set to `false` to avoid collisions with Prisma migrations.
+   */
+  synchronize: false,
+  {{#if schema}}
+  schema: '{{schema}}',
+  {{/if}}
+})
+export class {{ entity }} {
+  {{#each primary}}
+  @PrimaryColumn()
+    {{ this.name}}{{ this.colModifier }}: {{ this.colType}};
+
+  {{/each}}
+
+  {{#each columns}}
+    @Column(
+      {
+        update: false,
+        {{#if this.colOptions.nullable}}
+          nullable: true,
+        {{/if}}
+        {{#if this.colOptions.isJson}}
+          type: 'jsonb',
+        {{/if}}
+      }
+    )
+    {{ this.name}}{{ this.colModifier }}: {{ this.colType}};
+
+  {{/each}}
+
+  {{#each createdAt}}
+  @CreateDateColumn(
+      {
+        update: false,
+        {{#if this.colOptions.nullable}}
+          nullable: true,
+        {{/if}}
+        {{#if this.colOptions.isJson}}
+          type: 'jsonb',
+        {{/if}}
+      }
+  )
+    {{ this.name}}{{ this.colModifier }}: Date;
+  {{/each}}
+
+  {{#each updatedAt}}
+  @UpdateDateColumn(
+    {
+        update: false,
+      {{#if this.colOptions.nullable}}
+        nullable: true,
+      {{/if}}
+      {{#if this.colOptions.isJson}}
+        type: 'jsonb',
+      {{/if}}
+    }
+  )
+    {{ this.name}}{{ this.colModifier }}: Date;
+  {{/each}}
+
+  {{#each oneToMany}}
+  @OneToMany(() => {{ this.entity }}, (e) => e.{{ this.targetField }})
+    {{ this.field }}: Relation<{{ this.entity }}[]>
+
+  {{/each}}
+
+  {{#each manyToOne}}
+  @ManyToOne(() => {{ this.entity }}, (e) => e.{{ this.targetField }})
+  {{#if this.fieldMap}}
+    {{#each this.fieldMap}}
+      @JoinColumn({
+        name: '{{ this.name }}', referencedColumnName: '{{ this.referencedColumnName }}'
+      })
+
+    {{/each}}
+  {{/if}}
+    {{ this.field }}: Relation<{{ this.entity }}>
+  {{/each}}
+
+  {{#each oneToOne}}
+  @OneToOne(() => {{ this.entity }}, (e) => e.{{ this.targetField }})
+  {{#if this.extraDecorator}}
+    {{#each this.extraDecorator}}
+      {{this}}
+
+    {{/each}}
+  {{/if}}
+    {{ this.field }}: Relation<{{ this.entity }}>
+  {{/each}}
+
+}

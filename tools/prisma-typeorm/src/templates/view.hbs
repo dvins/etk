@@ -1,0 +1,80 @@
+import {
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
+  UpdateDateColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
+{{#each imports }}
+  import { {{ this.name }} } from '{{ this.path }}'
+{{/each}}
+
+@ViewEntity({
+  name: '{{ viewName }}',
+  {{#if schema}}
+  schema: '{{schema}}',
+  {{/if}}
+  synchronize: false,
+})
+export class {{ view }} {
+  {{#each primary}}
+  @PrimaryColumn()
+    {{ this.name}}{{ this.colModifier }}: {{ this.colType}};
+
+  {{/each}}
+
+  {{#each columns}}
+    @ViewColumn(
+    {{#if this.colOptions.name}}
+      {
+        name: '{{ this.colOptions.name }}',
+      }
+    {{/if}}
+    )
+    {{ this.name}}{{ this.colModifier }}: {{ this.colType}};
+
+  {{/each}}
+
+  {{#each createdAt}}
+    @ViewColumn()
+    {{ this.name}}{{ this.colModifier }}: Date;
+  {{/each}}
+
+  {{#each updatedAt}}
+    @ViewColumn()
+    {{ this.name}}{{ this.colModifier }}: Date;
+  {{/each}}
+
+
+  {{#each oneToMany}}
+  @OneToMany(() => {{ this.entity }}, (e) => e.{{ this.targetField }})
+    {{ this.field }}?: Relation<{{ this.entity }}[]>
+  {{/each}}
+
+  {{#each manyToOne}}
+  @ManyToOne(() => {{ this.entity }})
+  {{#if this.fieldMap}}
+    {{#each this.fieldMap}}
+      @JoinColumn({
+        name: '{{ this.name }}', referencedColumnName: '{{ this.referencedColumnName }}'
+      })
+    {{/each}}
+  {{/if}}
+    {{ this.field }}!: Relation<{{ this.entity }}>
+  {{/each}}
+
+  {{#each oneToOne}}
+  @OneToOne(() => {{ this.entity }}, (e) => e.{{ this.targetField }})
+  {{#if this.extraDecorator}}
+    {{#each this.extraDecorator}}
+      {{this}}
+    {{/each}}
+  {{/if}}
+    {{ this.field }}: Relation<{{ this.entity }}>
+  {{/each}}
+}
