@@ -1,0 +1,55 @@
+{{#if channelParameters }}
+  const {
+    {{#each channelParameters}}
+      {{uppercase this}}: {{uppercase this}}_{{../className}}Subscriber,
+    {{/each}}
+  } = process.env;
+{{/if}}
+
+export abstract class {{className}}Processor
+  implements IQueueProcessor<{{messageType}}> {
+
+  {{#each channelParameters}}
+  protected {{this}}: string | undefined = {{uppercase this}}_{{../className}}Subscriber;
+  {{/each}}
+
+  static DEFAULT_CHANNEL: string = `{{baseChannelName}}${REDIS_QUEUE_SUFFIX ? '-' + REDIS_QUEUE_SUFFIX : ''}`;
+  static PROPERTIES: ChannelProperties = {
+    name: `{{baseChannelName}}`,
+    queueName: `{{baseChannelName}}${REDIS_QUEUE_SUFFIX ? '-' + REDIS_QUEUE_SUFFIX : ''}`,
+  };
+
+  /**
+   * This method can be overridden in the actual implementation of the class.
+   * It has a sensitive default though, so it is likely that we don't have to.
+   */
+  get channel(): string { return {{className}}Processor.PROPERTIES.name; }
+  get queueName(): string { return {{className}}Processor.PROPERTIES.queueName; }
+
+  readonly logger: ILogger;
+
+  {{#if operationId}}
+    /**
+    {{#each comments}}
+    * {{formatStringBlockComment this}}
+    *
+    {{/each}}
+    * @param message: IQueueMessage<{{messageType}}> The message to be handled
+    */
+    abstract {{operationId}}(message: IQueueMessage<{{messageType}}>, logger: ILogger): Promise<void>;
+
+    async handle(message: IQueueMessage<{{messageType}}>, logger: ILogger): Promise<void> {
+      return this.{{operationId}}(message, logger);
+    }
+
+  {{else}}
+    /**
+      {{#each comments}}
+    * {{formatStringBlockComment this}}
+    *
+      {{/each}}
+    * @param message: IQueueMessage<{{messageType}}> The message to be handled
+    */
+    abstract handle(message: IQueueMessage<{{messageType}}>, logger: ILogger): Promise<void>;
+  {{/if}}
+}

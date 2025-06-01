@@ -1,0 +1,60 @@
+{
+  "name": "@omedym/asyncapi",
+  "description": "AsyncAPI NestJs Generator",
+  "version": "5.0.0",
+  "license": "MIT",
+  "main": "./dist/cli.js",
+  "module": "./dist/cli.mjs",
+  "types": "./dist/cli.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    },
+    "require": {
+      "types": "./dist/cli.d.cts",
+      "require": "./dist/cli.cjs"
+    }
+  },
+  "bin": {
+    "asyncapi": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22.0"
+  },
+  "scripts": {
+    "asyncapi": "tsx dist/cli.js",
+    "build:tools": "tsup-node src/cli.ts --format cjs,esm --dts --clean --sourcemap && pnpm copy-templates",
+    "copy-templates": "rimraf dist/templates && copyfiles --up 2 src/templates/*.hbs dist/templates"
+  },
+  "dependencies": {
+    "@asyncapi/generator-react-sdk": "^1.1.2",
+    "@asyncapi/generator": "^2.6.0",
+    "@asyncapi/modelina": "^5.0.0",
+    "@asyncapi/nodejs-ws-template": "^0.10.0",
+    "@asyncapi/openapi-schema-parser": "^3.0.24",
+    "@asyncapi/parser": "^3.4.0",
+    "colors-cli": "^1.0.33",
+    "handlebars": "^4.7.8",
+    "luxon": "^2.5.2",
+    "prettier": "^2.8.8",
+    "safe-stable-stringify": "^2.5.0",
+    "tslib": "^2.6.2",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.11.18",
+    "@types/glob": "^8.1.0",
+    "@types/handlebars-helpers": "^0.5.6",
+    "@types/luxon": "^2.4.0",
+    "@types/node": "^22",
+    "@types/prettier": "^2.7.2",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.4"
+  },
+  "keywords": [
+    "cli"
+  ]
+}

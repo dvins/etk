@@ -1,0 +1,55 @@
+{{#if channelParameters }}
+  const {
+    {{#each channelParameters}}
+      {{uppercase this}}: {{uppercase this}}_{{../className}}Publisher,
+    {{/each}}
+  } = process.env;
+{{/if}}
+
+export class {{className}}Publisher {
+
+  readonly channel: string;
+  readonly queue: Queue<{{messageType}}>;
+
+  constructor(
+    channelName: string | undefined = undefined,
+    {{#each channelParameters}}
+    readonly {{this}}: string | undefined = {{uppercase this}}_{{../className}}Publisher,
+    {{/each}}
+  ) {
+    this.queue = get{{className}}Queue(
+      channelName,
+      {{#each channelParameters}}
+      {{this}},
+    {{/each}}
+    );
+    // remove at most 1000 jobs in this queue that has been already completed
+    // we don't attempt to remove them all as it could be very time-consuming, hence
+    // we opt instead for gradually removing them everytime we create a new instance of this class
+    this.queue.clean(1000000000, 1000, 'completed').then((jobs) => console.log(`[queue] ${this.queue.name} ${jobs.length} jobs cleaned`));
+    this.channel = this.queue.name;
+  }
+
+  /**
+   {{#each comments}}
+   * {{this}}
+   *
+   {{/each}}
+   * @param message: {{messageType}} The message to publish
+   * @param name:     An name for the bullmq job that will trigger the message
+   *                  default to emtpy ''.
+   * @param tenantId: An parameter to indicate to which tenant this job
+   *                  should be associated to, default 'SYSTEM'.
+   * @return          The job id related to the message publication
+   */
+  async publish(
+    message: {{messageType}},
+    name: string = '',
+    tenantId: string = 'SYSTEM',
+  ): Promise<string | undefined> {
+    // get a job id first
+    const jobId = cuid();
+    const job = await this.queue.add(name, message, { jobId });
+    return job.id;
+  }
+}

@@ -1,0 +1,30 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  LoggerService,
+  Param,
+  Post,
+} from '@nestjs/common';
+
+import { Queue } from 'bullmq';
+
+import cuid from 'cuid';
+
+import { default as Redis } from 'ioredis';
+
+import { default as process } from 'process';
+
+import {
+  ZodError,
+  ZodIssue,
+  z,
+} from 'zod';
+
+import type {
+  ChannelProperties,
+  IQueueMessage,
+  IQueueProcessor
+} from '@omedym/nestjs-dmq';
+
+import type { ILogger } from '@omedym/nestjs-telemetry';

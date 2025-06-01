@@ -1,0 +1,49 @@
+{{#unless (defined imports)}}
+// import { BadRequestException, Body, Controller, Param, Post } from '@nestjs/common';
+// import { ZodError, ZodIssue } from 'zod';
+{{/unless}}
+
+@Controller('{{buildChannelPostPath channelParameters}}')
+export class {{ className }}Controller {
+
+  @Post('{{baseChannelName}}')
+  async add(
+    @Body() message: {{ messageType }},
+    {{#each channelParameters}}
+    @Param('{{this}}') {{this}}: string | undefined,
+    {{/each}}
+  ): Promise<{ jobId: string | undefined }> {
+      let messageSafe;
+      try {
+        messageSafe = {{ messageType }}SchemaValidator.parse(message);
+      } catch (e) {
+        throw new BadRequestException(`value of message ${JSON.stringify(message)} is invalid: ${
+          (e as ZodError).errors.map(e => `path: ${e.path}, message: ${e.message}, code: ${e.code}`)
+            .join(" | ")}`
+        )
+      }
+
+      {{#each channelParameters}}
+      let {{ this }}Safe;
+      try {
+        {{ this }}Safe = {{this}}SchemaValidator.parse({{this}});
+      } catch (e) {
+        throw new BadRequestException(`value of {{ this }} ${JSON.stringify({{this}})} is invalid: ${
+          (e as ZodError).errors.map(e => `path: ${e.path}, message: ${e.message}, code: ${e.code}`)
+            .join(" | ")}`
+        )
+      }
+      {{/each}}
+
+      // send message to queue
+      const publisher = new {{className}}Publisher(
+        undefined,
+        {{#each channelParameters}}
+          {{this}}Safe,
+        {{/each}}
+      );
+      const jobId = await publisher.publish(messageSafe as {{ messageType }});
+      return { jobId };
+  }
+
+}

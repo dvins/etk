@@ -1,0 +1,60 @@
+{{#if (defined enum)}}z.enum([
+  {{#each enum}}
+  '{{this}}',
+  {{/each}}
+])
+{{~else if (defined oneOf)}}z.union([
+  {{#each oneOf}}
+    {{ getParserSchemaId this }}Schema,
+  {{/each}}
+])
+{{~else if (isUnionType type)}}z.union([
+  {{#each type}}
+    z.{{ toZodType this }}(
+    {{!-- check if is an array --}}
+    {{#if (eq this 'array')}}
+      {{#if (defined ../items)}}
+        z.{{ toZodType ../items.type }}()
+      {{/if}}
+    {{/if}}),
+  {{/each}}
+  ])
+{{~else if (eq format 'date')}}z.date()
+{{~else}}z.{{ toZodType type }}(
+  {{!-- check if is an array --}}
+  {{#if (eq type 'array')}}
+    {{#if (defined items)}}
+      {{{ renderZod items }}}
+    {{/if}}
+  {{/if}}
+  {{!-- check if is an object --}}
+  {{#if (eq type 'object')}}{
+      {{#each properties}}
+        {{@key}}: {{{ renderZod this }}}
+          {{#if (optional @key ../required)}}.optional(){{/if}},
+      {{/each}} }
+  {{/if}}
+){{/if}}
+{{!-- string constrains --}}
+{{#if (eq format 'date')}}
+{{!-- string constrains --}}
+{{else if (eq type 'string')}}
+  {{#if (defined format)}}
+    .{{ toZodFormat format }}()
+  {{/if}}
+  {{#if (defined maxLength)}}
+    .max({{maxLength}})
+  {{/if}}
+  {{#if (defined minLength)}}
+    .min({{minLength}})
+  {{/if}}
+{{/if}}
+{{!-- string constrains --}}
+{{#if (eq type 'array')}}
+  {{#if (defined maxItems)}}
+    .max({{maxItems}})
+  {{/if}}
+  {{#if (defined minItems)}}
+    .min({{minItems}})
+  {{/if}}
+{{/if}}

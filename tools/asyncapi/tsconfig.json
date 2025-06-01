@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.turbo.json",
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noImplicitOverride": false
+  },
+}

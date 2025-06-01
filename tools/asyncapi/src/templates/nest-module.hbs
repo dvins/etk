@@ -1,0 +1,19 @@
+import { Module } from '@nestjs/common';
+
+@Module({
+{{#if controllers.length}}
+  controllers: [
+  {{#each controllers}}
+    {{this}},
+  {{/each}}
+  ],
+  {{/if}}
+  {{#if providers.length}}
+  providers: [
+  {{#each providers}}
+    {{this}},
+  {{/each}}
+  ],
+  {{/if}}
+})
+export class AsyncApiModule {}

@@ -1,0 +1,36 @@
+{{#if channelParameters }}
+  const {
+    {{#each channelParameters}}
+      {{uppercase this}}: {{uppercase this}}_{{../className}}Queue,
+    {{/each}}
+  } = process.env;
+{{/if}}
+
+export const get{{className}}Queue = (
+    channelName: string | undefined = undefined,
+    {{#each channelParameters}}
+    {{this}}: string | undefined = {{uppercase this}}_{{../className}}Queue,
+    {{/each}}
+  ) => {
+    let channel;
+    if (channelName) {
+      channel = channelName;
+    } else {
+      {{#each channelParameters}}
+      if (!{{this}})
+        console.warn(`get{{../className}}Queue: parameter {{this}} not set, you can either:
+        - set {{ uppercase this }} env var
+        - pass {{ this }} value`);
+      {{/each}}
+
+      channel = `{{baseChannelName}}${REDIS_QUEUE_SUFFIX ? '-' + REDIS_QUEUE_SUFFIX : ''}`;
+    }
+
+    return new Queue(channel,{
+      prefix: `{${channel}}`,
+      connection: getRedisConnection(),
+      defaultJobOptions: {
+        removeOnComplete: 100, removeOnFail: 1000
+      }
+    });
+}
