@@ -1,3 +1,4 @@
+import { isArray } from 'lodash';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
@@ -11,7 +12,7 @@ const useStore = create(
     (set, get) => ({
       errors: [],
       actions: {
-        setError: (error) => set({ errors: [...get().errors, error] }),
+        setError: (error) => set({ errors: [...get().errors, ...(isArray(error) ? error : [error])] }),
         clearErrors: () => set({ errors: [] }),
       },
     }),

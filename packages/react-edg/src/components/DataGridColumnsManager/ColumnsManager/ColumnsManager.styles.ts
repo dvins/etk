@@ -17,7 +17,7 @@ const RightContent = styled.div`
 
 const Label = styled.label<{ theme: DataGridTheme }>`
   color: ${({ theme }) => theme.token.text.secondary};
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.font.size.medium};
   display: block;
   margin-bottom: 10px;
 `;

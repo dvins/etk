@@ -1,17 +1,17 @@
 import { fieldToString, generateFilters, generatePagination, generateSorting, generateTimeDimensions } from './helpers';
 
-import type { CubejsApi, Query } from '@cubejs-client/core';
+import type { CubeApi, Query } from '@cubejs-client/core';
 import type {
-  CubejsDataProviderMeta,
-  CubejsDataProviderOptions,
+  CubeDataProviderMeta,
+  CubeDataProviderOptions,
   DataProvider,
   DataProviderListParams,
 } from '@datagrid/api/types';
 
-export const CubejsDataProvider = <TData>(
-  cubejsApi: CubejsApi,
-  options?: CubejsDataProviderOptions,
-): DataProvider<TData, CubejsDataProviderMeta> => {
+export const CubeDataProvider = <TData>(
+  cubeApi: CubeApi,
+  options?: CubeDataProviderOptions,
+): DataProvider<TData, CubeDataProviderMeta> => {
   const generateVariablesFromParams = (params: DataProviderListParams) => {
     const timeDimensionFields = options?.timeDimensionFilters?.map((filter) => fieldToString(filter.field));
 
@@ -37,7 +37,7 @@ export const CubejsDataProvider = <TData>(
         filters: [...(meta.filters ?? []), ...variables.filters],
       };
 
-      const result = await cubejsApi.load(query);
+      const result = await cubeApi.load(query);
 
       const data = result.rawData();
       const totalCount = result.serialize().loadResponse.results[0].total ?? data.length;
@@ -47,5 +47,7 @@ export const CubejsDataProvider = <TData>(
         totalCount,
       };
     },
+
+    errorTransformer: (error: Error) => error,
   };
 };

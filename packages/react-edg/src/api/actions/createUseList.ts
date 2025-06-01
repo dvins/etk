@@ -39,7 +39,7 @@ export const createUseList =
         return result;
       } catch (error) {
         setPrevResponse(initialData);
-        return initialData;
+        throw error;
       } finally {
         clearTimeout(loadingMessageTimer);
         setShowLoadingMessage(false);
@@ -65,7 +65,7 @@ export const createUseList =
 
     return {
       data: response ?? initialData,
-      error,
+      error: dataProvider.errorTransformer(error),
       isLoading: isFetching,
       loadingMessage: showLoadingMessage ? dataProvider.loadingMessage : undefined,
       fetch: updateParameters,

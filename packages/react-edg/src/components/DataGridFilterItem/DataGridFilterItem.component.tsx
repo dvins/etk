@@ -43,10 +43,7 @@ export const DataGridFilterItem: React.FC<DataGridFilterItemProps> = ({
 
     updateFilterLoading(true);
 
-    await filter
-      .fetchOptions()
-      .then((options) => updateFilterOptions(options))
-      .catch(setError);
+    await filter.fetchOptions().then(updateFilterOptions).catch(setError);
 
     updateFilterLoading(false);
   };

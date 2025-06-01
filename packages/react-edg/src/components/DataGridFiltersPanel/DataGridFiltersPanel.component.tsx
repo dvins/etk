@@ -5,6 +5,7 @@ import { useSelectMode } from '@datagrid/hooks/selection';
 import { getValidFilters } from '@datagrid/utils/filters';
 import { useDebounceEffect, useUpdateEffect } from 'ahooks';
 import { Button, Space, Divider, Input } from 'antd';
+import { isEqual } from 'lodash';
 import { useMemo, useState } from 'react';
 
 import { Styled } from './DataGridFiltersPanel.styles';
@@ -43,11 +44,24 @@ export const DataGridFiltersPanel: React.FC<DataGridFiltersPanelProps> = ({
     onSelectedFiltersChange();
   };
 
-  const handleFilterChange = (filterKey: React.Key, value: DataGridFilterValue) => {
-    setInterimSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterKey]: value,
-    }));
+  const handleFilterChange = (filterKey: string, filterValue: DataGridFilterValue) => {
+    setInterimSelectedFilters((prevFilters) => {
+      const previousFilterValue = prevFilters[filterKey]?.value;
+      const isValueEmpty = filtersMap[filterKey].isFilterEmpty(filterValue.value);
+      const isPrevValueEmpty = previousFilterValue ? filtersMap[filterKey].isFilterEmpty(previousFilterValue) : true;
+
+      const isSameValue = isEqual(filterValue.value, previousFilterValue);
+      const isStillEmpty = isValueEmpty && isPrevValueEmpty;
+
+      if (isStillEmpty || isSameValue) {
+        return prevFilters;
+      }
+
+      return {
+        ...prevFilters,
+        [filterKey]: filterValue,
+      };
+    });
   };
 
   const closePanel = () => {

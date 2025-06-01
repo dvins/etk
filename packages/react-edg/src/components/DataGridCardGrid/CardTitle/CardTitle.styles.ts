@@ -20,7 +20,7 @@ const TypeContainer = styled.span`
 `;
 
 const Title = styled(Typography.Title)`
-  font-size: 14px !important;
+  font-size: ${({ theme }) => theme.font.size.base} !important;
   margin-bottom: 0 !important;
   margin-top: 3px;
 `;

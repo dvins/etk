@@ -2,7 +2,7 @@ import { useErrorStore } from '@datagrid/stores/error';
 import { notification } from 'antd';
 import { useEffect } from 'react';
 
-import type { ApolloError } from '@apollo/client';
+import type { DataGridError } from '@datagrid/types';
 
 const ERROR_NOTIFICATION_CONFIG = {
   duration: 0,
@@ -12,27 +12,29 @@ const ERROR_NOTIFICATION_CONFIG = {
   },
 };
 
-export const useErrorHandling = (defaultError?: unknown) => {
+type UseErrorHandling = (defaultError?: DataGridError) => ReturnType<typeof useErrorStore>;
+
+export const useErrorHandling: UseErrorHandling = (defaultError) => {
   const { errors, setError: setErrorToStore, clearErrors } = useErrorStore();
 
-  const showErrorNotification = (message: string) => {
+  const showErrorNotification = () => {
     notification.error({
       message: 'Sorry, an error occurred',
-      description: message,
+      description: 'Something went wrong while loading the data. Please try again later.',
       ...ERROR_NOTIFICATION_CONFIG,
     });
   };
 
-  const setError = (error: ApolloError) => {
+  const setError = (error: DataGridError) => {
     setErrorToStore(error);
-    showErrorNotification(error.message);
+    showErrorNotification();
   };
 
   useEffect(() => {
     if (defaultError) {
-      // TODO: handler different types of errors
-      setError(defaultError as ApolloError);
+      setError(defaultError);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultError]);
 
   return {

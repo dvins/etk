@@ -1,8 +1,6 @@
-import { type ApolloClient } from '@apollo/client';
-
 import { extractDataFromEdges, generateFilters, generatePagination, generateSorting } from './helpers';
 
-import type { EdgesWithNodesData } from './helpers';
+import type { NestjsQueryDataError } from './types';
 import type {
   DataProvider,
   DataProviderListParams,
@@ -11,9 +9,8 @@ import type {
 } from '@datagrid/api/types';
 
 export const NestjsQueryDataProvider = <TData>(
-  client: ApolloClient<object>,
   options?: NestjsQueryDataProviderOptions,
-): DataProvider<TData, NestjsQueryDataProviderMeta> => {
+): DataProvider<TData, NestjsQueryDataProviderMeta<TData>> => {
   const generateVariablesFromParams = (params: DataProviderListParams) => ({
     paging: generatePagination(params.paging),
     sorting: generateSorting(params.sorting),
@@ -24,22 +21,18 @@ export const NestjsQueryDataProvider = <TData>(
     generateVariablesFromParams,
 
     list: async (params, meta, signal) => {
-      const { query, operation, variables } = meta;
+      const { operation, variables, createFetcher } = meta;
+      const parsedVariables = {
+        ...generateVariablesFromParams(params),
+        ...variables,
+      };
 
-      const { data } = await client.query<Record<string, EdgesWithNodesData<TData>>>({
-        query,
-        variables: {
-          ...generateVariablesFromParams(params),
-          ...variables,
-        },
-        fetchPolicy: 'no-cache',
-        context: {
-          fetchOptions: {
-            signal,
-          },
-        },
-      });
-      const extractedData = extractDataFromEdges<TData>(data[operation]);
+      if (!createFetcher) {
+        throw new Error('Error: `createFetcher` is not defined.');
+      }
+
+      const data = await createFetcher(signal)(parsedVariables);
+      const extractedData = extractDataFromEdges(data[operation]);
 
       return {
         data: extractedData.data,
@@ -48,36 +41,46 @@ export const NestjsQueryDataProvider = <TData>(
     },
 
     create: async (params, meta) => {
-      const { query, operation } = meta;
+      const { operation, mutation } = meta;
+      if (!mutation) {
+        throw new Error('Error: `mutation` not defined.');
+      }
 
-      const { data } = await client.mutate<Record<string, TData>>({
-        mutation: query,
-        variables: params.variables,
-      });
-
-      return data?.[operation];
+      const data = await mutation(params.variables);
+      return (data as Record<string, any>)?.[operation];
     },
 
     update: async (params, meta) => {
-      const { query, operation } = meta;
+      const { operation, mutation } = meta;
+      if (!mutation) {
+        throw new Error('Error: `mutation` not defined.');
+      }
 
-      const { data } = await client.mutate<Record<string, TData>>({
-        mutation: query,
-        variables: params.variables,
-      });
-
-      return data?.[operation];
+      const data = await mutation(params.variables);
+      return (data as Record<string, any>)?.[operation];
     },
 
     delete: async (params, meta) => {
-      const { query, operation } = meta;
+      const { operation, mutation } = meta;
+      if (!mutation) {
+        throw new Error('Error: `mutation` not defined.');
+      }
 
-      const { data } = await client.mutate<Record<string, TData>>({
-        mutation: query,
-        variables: params.variables,
-      });
+      const data = await mutation(params.variables);
+      return (data as Record<string, any>)?.[operation];
+    },
 
-      return data?.[operation];
+    errorTransformer: (error: NestjsQueryDataError) => {
+      if (!error) {
+        return error;
+      }
+
+      if ('errors' in error) {
+        return error.errors.map(({ message }) => new Error(message));
+      }
+
+      const errors: Error[] = JSON.parse(error.message);
+      return errors;
     },
   };
 };

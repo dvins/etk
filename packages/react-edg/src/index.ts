@@ -17,5 +17,6 @@ export type {
   InfinityFetchOptionsFn as DataGridInfinityFetchOptionsFn,
   InfinityFetchOptionsVariables as DataGridInfinityFetchOptionsVariables,
   DataGridFilterOperator,
+  DataGridParameters,
 } from './types';
 export type { DataGridCardCoverProps, DataGridCardTitleProps } from './components';

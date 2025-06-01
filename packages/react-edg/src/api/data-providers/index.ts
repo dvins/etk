@@ -1,2 +1,3 @@
 export { NestjsQueryDataProvider } from './nestjs-query';
-export { CubejsDataProvider } from './cubejs';
+export { CubeDataProvider } from './cube';
+export type { EdgesWithNodesData } from './nestjs-query';

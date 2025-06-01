@@ -82,7 +82,7 @@ export function DataGrid<TData extends TableData>({
     updatePinnedFilters,
     updateSelectedFilters,
   } = useDataGridFilters(filterBuilders, initialFiltersQueryParams);
-  const { rowSelection, renderSelectableActions } = useSelectableRows(bulkActions);
+  const { rowSelection, renderSelectableActions } = useSelectableRows<TData>(bulkActions);
   const [selectedView, setSelectedView] = useState<DataGridView<TData>>();
 
   const [paging, setPaging] = useState<DataGridPaginationConfig>({

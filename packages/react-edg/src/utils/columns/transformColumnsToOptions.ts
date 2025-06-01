@@ -13,7 +13,7 @@ export const transformColumnsToOptions = <T extends TableData>(
 ): DataGridColumnCheckboxOption[] => {
   return columns.map(({ title, rawTitle, key, hidden, group, fixed = false }) => ({
     value: key,
-    label: rawTitle ?? title,
+    label: rawTitle ?? (typeof title === 'object' && title !== null ? JSON.stringify(title) : title?.toString()),
     visible: !hidden,
     group: group ?? DEFAULT_COLUMN_GROUP,
     // table column allows true as fixed value, which pins to left, added due types collision

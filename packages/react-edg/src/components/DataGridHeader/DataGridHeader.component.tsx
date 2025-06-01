@@ -21,7 +21,8 @@ export const DataGridHeader = <TData extends TableData>({
   const theme = useDataGridTheme();
   const { selectModeEnabled } = useSelectMode();
 
-  const viewsRendered = viewsConfig && viewsConfig.length > 0;
+  const viewsRendered = viewsConfig && viewsConfig.length > 1;
+  const singleViewTitle = viewsConfig?.length === 1 ? viewsConfig[0].label : undefined;
 
   const handleReset = () => {
     if (viewsRendered && selectedView) {
@@ -32,7 +33,7 @@ export const DataGridHeader = <TData extends TableData>({
     resetToDefault();
   };
 
-  if (!title && !viewsRendered) {
+  if (!title && !singleViewTitle && !viewsRendered) {
     return null;
   }
 
@@ -42,7 +43,7 @@ export const DataGridHeader = <TData extends TableData>({
         {viewsRendered ? (
           <DataGridViewSelect viewsConfig={viewsConfig} selectedView={selectedView} {...viewSelectProps} />
         ) : (
-          <Styled.Title level={4}>{title}</Styled.Title>
+          <Styled.Title level={4}>{title ?? singleViewTitle}</Styled.Title>
         )}
 
         <Styled.ResetButton

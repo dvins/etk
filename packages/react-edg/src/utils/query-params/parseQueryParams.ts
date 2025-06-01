@@ -1,12 +1,12 @@
 import { clone, set } from 'lodash';
-import { parse } from 'query-string';
+import queryString from 'query-string';
 
 import { getQueryValue } from './getQueryValue';
 
 import type { ParseOptions } from 'query-string';
 
 export function parseQueryParams(parseOptions: ParseOptions, ignoreDecodeKeys?: string[]): Record<string, any> {
-  const parsedParams = parse(window.location.search, parseOptions);
+  const parsedParams = queryString.parse(window.location.search, parseOptions);
 
   return Object.keys(parsedParams).reduce<Record<string, any>>((params, queryKey) => {
     /* Complex query key has a view 'key.subkey.*' */

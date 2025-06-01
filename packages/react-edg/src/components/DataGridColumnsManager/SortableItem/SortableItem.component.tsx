@@ -45,7 +45,7 @@ export const SortableItem: FC<SortableElementProps> = ({
         <div>
           <PinButton pinStatus={pinStatus} pinColumnsSize={pinnedColumnsSize} onPinnedChange={onPinnedChange} />
 
-          <Button size="small" icon={<FontAwesomeIcon icon={faTimes} />} variant="text" onClick={onRemove} />
+          <Button size="small" icon={<FontAwesomeIcon icon={faTimes} />} type="text" onClick={onRemove} />
         </div>
       </Styled.Content>
     </Styled.SelectedColumn>

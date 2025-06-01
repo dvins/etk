@@ -3,6 +3,7 @@ export type * from './bulkActions.types';
 export type * from './columnsManager.types';
 export type * from './contextMenu.types';
 export type * from './data.types';
+export type * from './error.types';
 export type * from './export.types';
 export type * from './filters.types';
 export type * from './filterOperators.types';

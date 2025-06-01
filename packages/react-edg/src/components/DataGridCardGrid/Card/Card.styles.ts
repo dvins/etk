@@ -54,7 +54,7 @@ const CardTitleContainer = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   gap: 4px;
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.font.size.base};
 `;
 
 export const Styled = { Card, CardTitleContainer };

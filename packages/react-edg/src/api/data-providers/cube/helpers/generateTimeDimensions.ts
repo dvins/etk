@@ -1,16 +1,16 @@
 import { fieldToString } from './fieldToString';
 
-import type { CubejsTimeDimension, CubejsTimeDimensionFilter, DataProviderParams } from '@datagrid/api/types';
+import type { CubeTimeDimension, CubeTimeDimensionFilter, DataProviderParams } from '@datagrid/api/types';
 
 export const generateTimeDimensions = (
   filters: DataProviderParams['filters'],
-  timeDimensionFilters?: CubejsTimeDimensionFilter[],
-): CubejsTimeDimension[] => {
+  timeDimensionFilters?: CubeTimeDimensionFilter[],
+): CubeTimeDimension[] => {
   if (!timeDimensionFilters) {
     return [];
   }
 
-  return timeDimensionFilters.reduce<CubejsTimeDimension[]>((timeDimensions, timeDimensionFilter) => {
+  return timeDimensionFilters.reduce<CubeTimeDimension[]>((timeDimensions, timeDimensionFilter) => {
     const selectedTimeDimensionFilter = filters.find(
       (f) => fieldToString(f.field) === fieldToString(timeDimensionFilter.field),
     );

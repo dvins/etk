@@ -1,15 +1,15 @@
 import { isArray, isEmpty } from 'lodash';
 
-import { CubejsSortDirection, type CubejsSorting } from '../types';
+import { CubeSortDirection, type CubeSorting } from '../types';
 
 import type { DataProviderParams } from '@datagrid/api/types';
 
-export const generateSorting = (sorting: DataProviderParams['sorting']): CubejsSorting => {
+export const generateSorting = (sorting: DataProviderParams['sorting']): CubeSorting => {
   if (isEmpty(sorting)) {
     return {};
   }
 
-  return sorting.reduce<CubejsSorting>((sortingRules, { field, order }) => {
+  return sorting.reduce<CubeSorting>((sortingRules, { field, order }) => {
     if (!order || !field) {
       return sortingRules;
     }
@@ -18,7 +18,7 @@ export const generateSorting = (sorting: DataProviderParams['sorting']): CubejsS
 
     return {
       ...sortingRules,
-      [sortField]: CubejsSortDirection[order],
+      [sortField]: CubeSortDirection[order],
     };
   }, {});
 };

@@ -1,9 +1,10 @@
+import { useDataGridTheme } from '@datagrid/theme/hooks';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'antd';
 import React from 'react';
 
-import { BASE_BUTTON_FONT_SIZE, BaseButton } from '../BaseButton';
+import { BaseButton } from '../BaseButton';
 
 import type { SelectButtonProps } from './SelectButton.types';
 
@@ -12,9 +13,11 @@ export const SelectButton: React.FC<SelectButtonProps> = ({
   disableSelectMode,
   enableSelectMode,
 }) => {
+  const theme = useDataGridTheme();
+
   if (selectModeEnabled) {
     return (
-      <Button type="link" style={{ fontSize: BASE_BUTTON_FONT_SIZE }} onClick={disableSelectMode}>
+      <Button type="link" style={{ fontSize: theme.font.size.medium }} onClick={disableSelectMode}>
         Done
       </Button>
     );

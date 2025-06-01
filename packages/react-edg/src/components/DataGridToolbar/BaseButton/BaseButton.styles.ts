@@ -3,10 +3,8 @@ import styled, { css } from 'styled-components';
 
 import type { ButtonProps } from 'antd';
 
-export const BASE_BUTTON_FONT_SIZE = 13;
-
 export const BASE_BUTTON_STYLES = css`
-  font-size: ${BASE_BUTTON_FONT_SIZE}px;
+  font-size: ${({ theme }) => theme.font.size.base};
   height: auto;
   padding: 4px 8px;
 `;

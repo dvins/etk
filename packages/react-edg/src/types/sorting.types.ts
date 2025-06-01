@@ -5,7 +5,7 @@ export interface DataGridSorterResult<TData> {
   columns?: DataGridColumn<TData>;
   order?: DataGridSortOrder;
   field?: Key | readonly Key[];
-  columnKey?: Key;
+  columnKey?: string;
 }
 
 export type DataGridSorter<TData> = DataGridSorterResult<TData> | DataGridSorterResult<TData>[];

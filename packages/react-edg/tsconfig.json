@@ -1,23 +1,15 @@
 {
+	"extends": "../../../../tsconfig.turbo.json",
 	"compilerOptions": {
-		"target": "ESNext",
-		"lib": ["DOM", "DOM.Iterable", "ESNext"],
-		"types": ["vite/client", "node"],
-		"allowJs": false,
-		"skipLibCheck": true,
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"strict": true,
-		"forceConsistentCasingInFileNames": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"resolveJsonModule": true,
-		"noEmit": true,
-		"jsx": "react-jsx",
-		"declaration": true,
-		"declarationDir": "./dist",
-		"outDir": "./dist",
 		"baseUrl": ".",
+		"jsx": "react-jsx",
+		// Prevents the "React is not defined" error. For more context, refer to:
+		// https://github.com/egoist/tsup/issues/792#issuecomment-1399614778
+		"emitDecoratorMetadata": false,
+    "module": "ESNext",
+    "moduleResolution": "node",
+		"outDir": "dist",
+		"types": ["node"],
 		"paths": {
 			"@datagrid/*": ["src/*"]
 		}

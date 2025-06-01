@@ -1,7 +1,7 @@
 import { stringifyQueryParams, parseQueryParams, flattenObject } from '@datagrid/utils/query-params';
 import { useDebounce, useUpdateEffect } from 'ahooks';
 import { useMemo, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import type { ParseOptions, StringifyOptions } from 'query-string';
 
@@ -40,8 +40,8 @@ export const useURLQueryParams = ({
 }: UseURLQueryParamsArgs): [Record<string, any>, SearchParamsActions] => {
   const [queryParams, setQueryParams] = useState(parseQueryParams(PARSE_OPTIONS, ignoreDecodeKeys));
   const debouncedValue = useDebounce(queryParams, { wait: 200 });
-  const { replace } = useHistory();
-  const { pathname } = useLocation<Location>();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const stringifyOptions = useMemo(
     () => ({
@@ -56,7 +56,7 @@ export const useURLQueryParams = ({
   );
 
   useUpdateEffect(() => {
-    replace(`${pathname}?${stringifyQueryParams(flattenObject(queryParams), stringifyOptions)}`);
+    navigate(`${pathname}?${stringifyQueryParams(flattenObject(queryParams), stringifyOptions)}`, { replace: true });
   }, [debouncedValue]);
 
   function removeAll() {

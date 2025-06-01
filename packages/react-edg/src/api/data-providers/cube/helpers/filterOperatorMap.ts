@@ -1,7 +1,7 @@
-import type { CubejsFilterOperator } from '../types';
+import type { CubeFilterOperator } from '../types';
 import type { DataGridFilterOperator } from '@datagrid/types';
 
-export const operatorMap: Partial<Record<DataGridFilterOperator, CubejsFilterOperator>> = {
+export const operatorMap: Partial<Record<DataGridFilterOperator, CubeFilterOperator>> = {
   eq: 'equals',
   ne: 'notEquals',
   lt: 'lt',

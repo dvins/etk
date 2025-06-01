@@ -1,11 +1,11 @@
-import type { ApolloError } from '@apollo/client';
+import type { DataGridError } from '@datagrid/types';
 
 interface ErrorActions {
-  setError: (error: ApolloError) => void;
+  setError: (error: DataGridError) => void;
   clearErrors: () => void;
 }
 
 export interface ErrorStore {
-  errors: ApolloError[];
+  errors: Error[];
   actions: ErrorActions;
 }

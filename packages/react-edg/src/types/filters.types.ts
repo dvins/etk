@@ -1,3 +1,4 @@
+import type { DataGridError } from './error.types';
 import type { DataGridFilterOperator } from './filterOperators.types';
 import type { DefaultOptionType } from 'antd/es/select';
 
@@ -7,9 +8,12 @@ export interface FilterOptionType<TData extends FilterOptionDataType = FilterOpt
   data?: TData;
 }
 
-export type FetchOptionsFn<TData extends FilterOptionDataType = FilterOptionDataType> = (
-  variables?: Record<string, any>,
-) => Promise<FilterOptionType<TData>[]>;
+export type FetchErrorTransformer<TError extends Error = Error> = (error: TError) => DataGridError;
+
+export type FetchOptionsFn<
+  TData extends FilterOptionDataType = FilterOptionDataType,
+  TVars extends FilterOptionDataType = FilterOptionDataType,
+> = (variables?: TVars) => Promise<FilterOptionType<TData>[]>;
 
 export type InfinityFetchOptionsFn<TData extends FilterOptionDataType = FilterOptionDataType> = (
   variables: InfinityFetchOptionsVariables,

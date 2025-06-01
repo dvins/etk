@@ -15,6 +15,7 @@ import type {
   ToFilterChipsFn,
   InfinityFetchOptionsFn,
   DataGridFilterOperator,
+  FetchErrorTransformer,
 } from '@datagrid/types';
 
 /**
@@ -208,10 +209,18 @@ export abstract class BaseFilter {
   /**
    * Sets the fetch options function to fetch options from external resource.
    * @param fetchOptions - The fetch options function.
+   * @param errorTransformer - Error parser in case of fetch error catch.
    * @returns The instance of the BaseFilter class.
    */
-  useFetchOptions<TData extends FilterOptionDataType>(fetchOptions: FetchOptionsFn<TData>): this {
-    this.fetchOptions = fetchOptions;
+  useFetchOptions<TData extends FilterOptionDataType>(
+    fetchOptions: FetchOptionsFn<TData>,
+    errorTransformer: FetchErrorTransformer,
+  ): this {
+    this.fetchOptions = (variables) =>
+      fetchOptions(variables).catch((error) => {
+        throw errorTransformer(error);
+      });
+
     // Set default transform to Filter Chips for filter with options
     this.useOptionsFilterChips();
 

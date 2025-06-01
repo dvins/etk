@@ -48,7 +48,7 @@ export const PinButton: React.FC<PinButtonProps> = ({ pinStatus, pinColumnsSize,
         size="small"
         isActive={Boolean(pinStatus)}
         icon={<FontAwesomeIcon size="sm" {...getPinIconProps(pinStatus)} />}
-        variant="text"
+        type="text"
       />
     </Dropdown>
   );

@@ -40,7 +40,7 @@ const Header = styled.div`
   height: ${FILTERS_PANEL.headerHeight}px;
   padding: 12px 24px;
   font-weight: bold;
-  font-size: 16px;
+  font-size: ${({ theme }) => theme.font.size.large};
   border-bottom: 1px solid ${({ theme }) => theme.token.border.secondary};
 `;
 

@@ -70,5 +70,16 @@ export const generateDataGridTheme = (token: AliasToken) => {
       laptopL: 1440,
       desktop: 2560,
     },
+
+    font: {
+      size: {
+        xsmall: '0.5rem',
+        small: '0.667rem',
+        medium: '0.833rem',
+        base: '1rem',
+        large: '1.333rem',
+        xlarge: '1.778rem',
+      },
+    },
   };
 };

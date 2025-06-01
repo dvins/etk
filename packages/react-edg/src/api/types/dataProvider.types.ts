@@ -1,5 +1,6 @@
 import type { Query, TimeDimension } from '@cubejs-client/core';
-import type { DataGridParameters, DataGridParametersFilter } from '@datagrid/types';
+import type { EdgesWithNodesData } from '@datagrid/api';
+import type { DataGridError, DataGridParameters, DataGridParametersFilter } from '@datagrid/types';
 import type { DocumentNode } from 'graphql';
 
 export type DataProviderParams = DataGridParameters;
@@ -37,6 +38,7 @@ export interface DataProvider<TData, TMeta extends DataProviderMeta> {
   loadingMessage?: string;
   generateVariablesFromParams(params: DataProviderParams): Record<string, any>;
   list(params: DataProviderListParams, meta: TMeta, signal?: AbortSignal): Promise<DataProviderListResponse<TData>>;
+  errorTransformer(error: unknown): DataGridError;
   create?(params: DataProviderCreateParams, meta: TMeta): Promise<TData | undefined>;
   update?(params: DataProviderUpdateParams, meta: TMeta): Promise<TData | undefined>;
   delete?(params: DataProviderDeleteParams, meta: TMeta): Promise<TData | undefined>;
@@ -46,11 +48,18 @@ interface NestjsQueryDataProviderFilter extends DataProviderParamsFilter {
   value: DataProviderParamsFilter | any;
 }
 
-export interface NestjsQueryDataProviderMeta extends DataProviderMeta {
-  query: DocumentNode;
+export interface NestjsQueryDataProviderMeta<TData> extends DataProviderMeta {
   operation: string;
+  createFetcher?: CreateFetcher<TData>;
+  mutation?: Mutation;
+  query?: DocumentNode;
   variables?: Record<string, any>;
 }
+
+type CreateFetcher<TData> = (
+  signal?: AbortSignal,
+) => (variables: Record<string, any>) => Promise<Record<string, EdgesWithNodesData<TData>>>;
+type Mutation<TData = unknown, TVars = any> = (variables: TVars) => Promise<TData>;
 
 export type NestjsQueryDataProviderFilterParamAdapter = (
   filter: DataProviderParamsFilter,
@@ -65,7 +74,7 @@ export interface NestjsQueryDataProviderOptions {
   filterAdapters?: NestjsQueryDataProviderFilterAdapter[];
 }
 
-export type CubejsTimeDimension = TimeDimension;
+export type CubeTimeDimension = TimeDimension;
 
 /**
  * Interface representing the metadata for a Cube.js data provider.
@@ -75,21 +84,21 @@ export type CubejsTimeDimension = TimeDimension;
  * @property filters - Optional filters that will be combined with the filters from the Data Grid parameters.
  * @property timezone - An optional timezone string to be used for the query.
  */
-export interface CubejsDataProviderMeta {
+export interface CubeDataProviderMeta {
   measures: Query['measures'];
   dimensions?: Query['dimensions'];
   filters?: Query['filters'];
   timezone?: Query['timezone'];
 }
 
-export type CubejsFilterToTimeDimension = (filter: DataProviderParamsFilter) => CubejsTimeDimension | null;
+export type CubeFilterToTimeDimension = (filter: DataProviderParamsFilter) => CubeTimeDimension | null;
 
-export type CubejsTimeDimensionFilter = {
+export type CubeTimeDimensionFilter = {
   field: string | string[];
-  filterToTimeDimension: CubejsFilterToTimeDimension;
+  filterToTimeDimension: CubeFilterToTimeDimension;
 };
 
-export interface CubejsDataProviderOptions {
+export interface CubeDataProviderOptions {
   defaultTimezone?: string;
-  timeDimensionFilters?: CubejsTimeDimensionFilter[];
+  timeDimensionFilters?: CubeTimeDimensionFilter[];
 }

@@ -6,7 +6,7 @@ const Title = styled(Typography.Title)`
 `;
 
 const ResetButton = styled(Button)`
-  font-size: 10px;
+  font-size: ${({ theme }) => theme.font.size.small};
   height: auto;
   width: auto !important;
   padding: 2px 4px !important;

@@ -16,7 +16,7 @@ const Space = styled(AntdSpace)<{ itemWidth?: string }>`
 `;
 
 const Label = styled(Typography.Text)`
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.font.size.medium};
 `;
 
 const LabelIcon = styled.div`

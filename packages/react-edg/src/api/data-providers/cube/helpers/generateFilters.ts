@@ -4,19 +4,19 @@ import { fieldToString } from './fieldToString';
 import { operatorMap } from './filterOperatorMap';
 
 import type {
-  CubejsBinaryFilter,
-  CubejsFilter,
-  CubejsFilterOperator,
-  CubejsLogicalAndFilter,
-  CubejsLogicalOrFilter,
-  CubejsUnaryFilter,
+  CubeBinaryFilter,
+  CubeFilter,
+  CubeFilterOperator,
+  CubeLogicalAndFilter,
+  CubeLogicalOrFilter,
+  CubeUnaryFilter,
 } from '../types';
 import type { DataProviderParams } from '@datagrid/api/types';
 
 export const generateFilters = (
   filters: DataProviderParams['filters'],
   omitFilterFields?: string[],
-): CubejsFilter[] => {
+): CubeFilter[] => {
   return filters
     .filter((filter) => {
       if (omitFilterFields?.includes(fieldToString(filter.field))) {
@@ -47,20 +47,20 @@ export const generateFilters = (
         };
       }
 
-      const operator: CubejsFilterOperator = operatorMap[filter.operator] ?? 'equals';
+      const operator: CubeFilterOperator = operatorMap[filter.operator] ?? 'equals';
 
       if (operator === 'or' || operator === 'and') {
         const nestedFilters = generateFilters(filtersArray);
         return {
           [operator]: nestedFilters,
-        } as CubejsLogicalAndFilter | CubejsLogicalOrFilter;
+        } as CubeLogicalAndFilter | CubeLogicalOrFilter;
       }
 
       if (operator === 'set' || operator === 'notSet') {
         return {
           member,
           operator,
-        } satisfies CubejsUnaryFilter;
+        } satisfies CubeUnaryFilter;
       }
 
       const values: string[] = isArray(filter.value) ? filter.value : [filter.value];
@@ -69,6 +69,6 @@ export const generateFilters = (
         member,
         operator,
         values,
-      } satisfies CubejsBinaryFilter;
+      } satisfies CubeBinaryFilter;
     });
 };

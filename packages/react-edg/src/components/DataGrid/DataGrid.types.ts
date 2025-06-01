@@ -10,6 +10,7 @@ import type {
   ActionButton,
   DataExportHandler,
   DataGridParameters,
+  DataGridError,
 } from '@datagrid/types';
 import type { TableProps } from 'antd';
 
@@ -49,7 +50,7 @@ export interface DataGridProps<TData extends TableData>
   /**
    * Error encountered while loading data.
    */
-  loadingError?: unknown;
+  loadingError?: DataGridError;
   /**
    * Toolbar buttons configuration. On `false`, the toolbar won't display on the _DataGrid_.
    *
