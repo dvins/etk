@@ -1,0 +1,47 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "coverage:gather:integration": {
+      "outputs": ["coverage/integration/raw/**"],
+      "cache": false
+    },
+    "coverage:gather:unit": {
+      "outputs": ["coverage/unit/raw/**"],
+      "cache": false
+    },
+    "coverage:merge:integration": {
+      "dependsOn": ["coverage:gather:integration"],
+      "inputs": ["coverage/integration/raw/v8json/**"],
+      "outputs": ["coverage/integration/merged/**"],
+      "cache": false
+    },
+    "coverage:merge:unit": {
+      "dependsOn": ["coverage:gather:unit"],
+      "inputs": ["coverage/unit/raw/v8json/**"],
+      "outputs": ["coverage/unit/merged/**"],
+      "cache": false
+    },
+    "coverage:report:integration": {
+      "dependsOn": ["coverage:merge:integration"],
+      "inputs": ["coverage/integration/merged/**"],
+      "outputs": ["coverage/integration/report/**"],
+      "cache": false
+    },
+    "coverage:report:unit": {
+      "dependsOn": ["coverage:merge:unit"],
+      "inputs": ["coverage/unit/merged/**"],
+      "outputs": ["coverage/unit/report/**"],
+      "cache": false
+    },
+    "coverage:view:integration": {
+      "dependsOn": ["coverage:report:integration"],
+      "inputs": ["coverage/integration/report/**"],
+      "cache": false
+    },
+    "coverage:view:unit": {
+      "dependsOn": ["coverage:report:unit"],
+      "inputs": ["coverage/unit/report/**"],
+      "cache": false
+    }
+  }
+}

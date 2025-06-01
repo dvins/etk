@@ -1,0 +1,63 @@
+{
+  "name": "@omedym/test-collector",
+  "description": "Test Collector",
+  "version": "5.0.0",
+  "license": "MIT",
+  "main": "./dist/cli.js",
+  "module": "./dist/cli.mjs",
+  "types": "./dist/cli.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    },
+    "require": {
+      "types": "./dist/cli.d.cts",
+      "require": "./dist/cli.cjs"
+    }
+  },
+  "bin": {
+    "test-collector": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22.0"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^10.0.3",
+    "colors-cli": "^1.0.32",
+    "commander": "^10.0.0",
+    "tslib": "^2.8.1",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.11.18",
+    "@types/node": "^22",
+    "fast-glob": "^3.3.3",
+    "jsdom": "^26.0.0",
+    "nyc": "^17.1.0",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.4"
+  },
+  "keywords": [
+    "codecov",
+    "cli",
+    "vitest"
+  ],
+  "scripts": {
+    "test-collector": "tsx src/cli.ts",
+    "build": "tsc --noEmit",
+    "build:tools": "tsup-node src/cli.ts --format cjs,esm --dts --clean --sourcemap",
+    "coverage:gather:integration:junit": "tsx dist/cli.js gather --source ../.. --destination ../../coverage/integration/raw/junit --fileType integration.junit.xml",
+    "coverage:gather:integration:v8json": "tsx dist/cli.js gather --source ../.. --destination ../../coverage/integration/raw/v8json --fileType integration.coverage-final.json",
+    "coverage:gather:integration": "pnpm coverage:gather:integration:v8json && pnpm coverage:gather:integration:junit",
+    "coverage:gather:unit:junit": "tsx dist/cli.js gather --source ../.. --destination ../../coverage/unit/raw/junit --fileType unit.junit.xml",
+    "coverage:gather:unit:v8json": "tsx dist/cli.js gather --source ../.. --destination ../../coverage/unit/raw/v8json --fileType unit.coverage-final.json",
+    "coverage:gather:unit": "pnpm coverage:gather:unit:v8json && pnpm coverage:gather:unit:junit",
+    "coverage:merge:integration": "tsx dist/cli.js merge --rawDir ../../coverage/integration/raw/v8json --outputDir ../../coverage/integration/merged",
+    "coverage:merge:unit": "tsx dist/cli.js merge --rawDir ../../coverage/unit/raw/v8json --outputDir ../../coverage/unit/merged",
+    "coverage:report:integration": "tsx dist/cli.js report --tempDir ../../coverage/integration/merged --reportDir ../../coverage/integration/report",
+    "coverage:report:unit": "tsx dist/cli.js report --tempDir ../../coverage/unit/merged --reportDir ../../coverage/unit/report",
+    "coverage:view:integration": "open ../../coverage/integration/report/lcov-report/index.html",
+    "coverage:view:unit": "open ../../coverage/unit/report/lcov-report/index.html"
+  }
+}

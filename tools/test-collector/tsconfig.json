@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.turbo.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  },
+}
