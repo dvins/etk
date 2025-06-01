@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing';
 import { NestjsSentryModule } from './sentry.module';
 

@@ -1,4 +1,8 @@
 {
-  // recall that this is using merely for intellisense
-  "extends": "../../tsconfig.base.json"
+  "extends": "../../../../tsconfig.turbo.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules",  "src/**/*.test.ts"]
 }

@@ -1,7 +1,8 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Writable } from 'stream';
 import winston from 'winston';
 import { bindRequest, fixedLength, enrichedJsonFormat } from './utils';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from 'vitest-mock-extended';
 import type { Logger } from '@nestjs/common';
 
 describe('utils', () => {
@@ -12,10 +13,10 @@ describe('utils', () => {
     next();
   };
   const defaultLogger = mockDeep<Logger>({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    apply: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    apply: vi.fn(),
     child: () => defaultLogger,
   } as any);
 

@@ -2,7 +2,8 @@ import chalk from 'chalk';
 import { DateTime } from 'luxon';
 import { serializeError } from 'serialize-error';
 import { configure as stringifyConfigure } from 'safe-stable-stringify';
-import { format } from 'logform';
+import { format, TransformableInfo } from 'logform';
+
 import { findLogContext } from './LogContext';
 import { ContextAttributes } from './types';
 
@@ -24,82 +25,75 @@ export const alignedWithColorsAndTime = combine(
   timestamp(),
   align(),
   splat(),
-  printf(
-    ({
-      timestamp,
-      level: logLevel,
-      message,
-      caller,
-      ...customAttributes
-    }: { level: string; timestamp?: string; caller?: string } & Record<
-      string,
-      string | Record<string, string> | Array<any>
-    >) => {
-      const jsDate = timestamp ? new Date(timestamp) : new Date();
-      const isoDate = DateTime.fromJSDate(jsDate).toISO();
+  printf((info: TransformableInfo) => {
+    const { timestamp, level: logLevel, message, caller, ...customAttributes } = info;
+    const jsDate = timestamp ? new Date(timestamp as string) : new Date();
+    const isoDate = DateTime.fromJSDate(jsDate).toISO();
 
-      const fLogLevel = (logLevel: string) => {
-        let color;
-        switch (logLevel) {
-          case 'error':
-            color = chalk.bgRed.white;
-            break;
-          case 'warn':
-            color = chalk.yellow;
-            break;
-          case 'debug':
-            color = chalk.dim;
-            break;
-          default:
-            color = chalk.reset;
-            break;
-        }
+    const fLogLevel = (logLevel: string) => {
+      let color;
+      switch (logLevel) {
+        case 'error':
+          color = chalk.bgRed.white;
+          break;
+        case 'warn':
+          color = chalk.yellow;
+          break;
+        case 'debug':
+          color = chalk.dim;
+          break;
+        default:
+          color = chalk.reset;
+          break;
+      }
+      return color(fixedLength(logLevel.toLocaleUpperCase(), 5));
+    };
 
-        return color(fixedLength(logLevel.toLocaleUpperCase(), 5));
-      };
+    let logLine = `${chalk.cyan(isoDate)}${' ' + fLogLevel(logLevel)}`;
+    const notStringCustomAttributes: any[] = [];
 
-      let logLine = `${chalk.cyan(isoDate)}${' ' + fLogLevel(logLevel)}`;
-      const notStringCustomAttributes = [];
-
-      if (customAttributes) {
-        for (const attribute in customAttributes) {
-          if (Object.hasOwn(customAttributes, attribute)) {
-            const valueType = typeof customAttributes[attribute];
-
-            if (valueType === 'string' || valueType === 'number') {
-              logLine += ` [${attribute}: ${chalk.green(customAttributes[attribute])}]`;
-            } else {
-              notStringCustomAttributes.push(customAttributes[attribute]);
-            }
+    if (customAttributes) {
+      for (const attribute in customAttributes) {
+        if (Object.hasOwn(customAttributes, attribute)) {
+          // Here, we may need to cast because customAttributes[attribute] is unknown:
+          const value = customAttributes[attribute];
+          const valueType = typeof value;
+          if (valueType === 'string' || valueType === 'number') {
+            logLine += ` [${attribute}: ${chalk.green(value)}]`;
+          } else {
+            notStringCustomAttributes.push(value);
           }
         }
       }
+    }
 
-      if (caller && !(logLevel === 'error' || logLevel === 'warn')) {
-        logLine += ` [${chalk.magenta(caller)}]`;
+    if (caller && !(logLevel === 'error' || logLevel === 'warn')) {
+      logLine += ` [${chalk.magenta(caller)}]`;
+    }
+
+    logLine += chalk.white(message);
+
+    notStringCustomAttributes.forEach((meta) => {
+      if (Array.isArray(meta)) {
+        logLine += ` ${meta
+          .map((m: string) => {
+            return chalk.yellow(safeStringify(serializeError(m), null, 2));
+          })
+          .join(', ')}${
+          caller && (logLevel === 'error' || logLevel === 'warn')
+            ? '\n\t(at: ' + chalk.bold(caller) + ')'
+            : ''
+        }`;
       }
+    });
 
-      logLine += chalk.white(message);
+    // prevent multiline logs in serverless environments
+    if (isLambda) logLine = logLine.replaceAll('\n', '');
 
-      notStringCustomAttributes.forEach((meta) => {
-        if (Array.isArray(meta)) {
-          logLine += ` ${meta
-            .map((m: string) => {
-              return chalk.yellow(safeStringify(serializeError(m), null, 2));
-            })
-            .join(', ')}${
-            caller && (logLevel === 'error' || logLevel === 'warn') ? '\n\t(at: ' + chalk.bold(caller) + ')' : ''
-          }`;
-        }
-      });
-
-      // prevent multiline logs in serverless environments
-      if (isLambda) logLine = logLine.replaceAll('\n', '');
-
-      return logLine;
-    },
-  ),
+    return logLine;
+  }),
 );
+
 
 export const enrichedJsonFormat = (contextAttributes: ContextAttributes) => {
   const addHeader = format((info) => {
@@ -107,7 +101,7 @@ export const enrichedJsonFormat = (contextAttributes: ContextAttributes) => {
     info.header = findLogContext({}, contextAttributes, info);
 
     // Remove copied attributes, only from the first level
-    for (const key in info.header) {
+    for (const key in info.header as any) {
       if (Object.hasOwn(info, key)) {
         delete info[key];
       }

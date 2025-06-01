@@ -1,3 +1,4 @@
+import { describe, it, test, expect, vi } from 'vitest'
 import { ContextAttributes } from './types';
 import { findLogContext } from './LogContext';
 

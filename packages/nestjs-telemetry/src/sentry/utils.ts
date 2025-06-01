@@ -6,6 +6,7 @@ export function getApolloOperationData(queryRaw?: string): ApolloOperationData {
   if (!queryRaw) {
     return {};
   }
+
   let requestType: string | undefined;
   let operationName: string | undefined;
 

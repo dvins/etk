@@ -1,21 +1,32 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing';
 import { Injectable, type Logger } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
-import { Event } from '@sentry/types';
-import { mockDeep } from 'jest-mock-extended';
+import * as Sentry from '@sentry/nestjs';
+import { Event } from '@sentry/core';
+import { mockDeep } from 'vitest-mock-extended';
 
 import { SentryService } from './sentry.service';
 import { NestjsLogger, type LoggerConfiguration } from '../logger';
 
 
+vi.mock('@sentry/nestjs', async () => {
+
+const original = await vi.importActual('@sentry/nestjs');
+  return {
+    __esModule: true,
+    ...original,
+    setTag: vi.fn().mockImplementation(() => {})
+  };
+});
+
 describe('SentryService', () => {
   let service: SentryService;
   let logger: NestjsLogger;
   const defaultLogger = mockDeep<Logger>({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    apply: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    apply: vi.fn(),
     child: () => defaultLogger,
   } as any);
 
@@ -58,7 +69,7 @@ describe('SentryService', () => {
   });
 
   it('should initSentry', () => {
-    const spy = jest.spyOn(global.console, 'info');
+    const spy = vi.spyOn(global.console, 'info');
 
     const result = SentryService.init({
       tags: {
@@ -70,21 +81,21 @@ describe('SentryService', () => {
   });
 
   it('should setTag', () => {
-    const spy = jest.spyOn(Sentry, 'setTag');
+    const spy = vi.spyOn(Sentry, 'setTag');
 
     const result = service.setTag('name', 'value');
     expect(spy).toHaveBeenCalled();
   });
 
   it('should setTags', () => {
-    const spy = jest.spyOn(Sentry, 'setTags');
+    const spy = vi.spyOn(Sentry, 'setTags');
 
     const result = service.setTags({ name: 'value' });
     expect(spy).toHaveBeenCalled();
   });
 
   it('should captureException', () => {
-    const spy = jest.spyOn(Sentry, 'captureException');
+    const spy = vi.spyOn(Sentry, 'captureException');
 
     const result = service.captureException('name');
 

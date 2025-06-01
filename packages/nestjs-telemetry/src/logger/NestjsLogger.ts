@@ -1,11 +1,12 @@
 import { Inject, Injectable, LoggerService, Optional } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { Scope } from '@sentry/types';
-import { Logger } from 'winston';
 import { ClsService } from 'nestjs-cls';
+import { Logger } from 'winston';
+
 import { getLogContext } from './LogContext';
 import { LOGGER_CONFIG, LOGGER_PROVIDER } from './logger.constants';
-import { ContextAttributes, LogLevel, LoggerConfiguration } from './types';
+
+import type { ContextAttributes, LogLevel, LoggerConfiguration } from './types';
 
 @Injectable()
 export class NestjsLogger implements LoggerService {
@@ -170,20 +171,13 @@ export class NestjsLogger implements LoggerService {
       //     hint: {...optionalParams[0], context },
       //   };
 
-      // Set the scope tags and context
-      const scope = (scope: Scope) => {
-        scope.setLevel('error'), scope.setTags({ ...context });
-        scope.setContext('Error Insights', { ...optionalParams });
-        return scope;
-      };
-
       // Find the error object(s)
       const error: Error[] = optionalParams.filter((p) => p instanceof Error);
 
       // Forward the exception error(s) to Sentry
       error.length > 0
-        ? error.map((e) => Sentry.captureException(e, scope))
-        : Sentry.captureException(new Error(message), scope);
+        ? error.map((e) => Sentry.captureException(e))
+        : Sentry.captureException(new Error(message));
     } catch (e) {
       console.error(`NestjsLogger Sentry.captureException failure`, e);
     }
@@ -191,14 +185,7 @@ export class NestjsLogger implements LoggerService {
 
   private captureWarning(message: string, optionalParams: any[], context?: Record<string, string>) {
     try {
-      // Set the scope tags and context
-      const scope = (scope: Scope) => {
-        scope.setLevel('warning'), scope.setTags({ ...context });
-        scope.setContext('Warning Insights', { ...optionalParams });
-        return scope;
-      };
-
-      Sentry.captureMessage(message, scope);
+      Sentry.captureMessage(message, 'warning');
     } catch (e) {
       console.error(`NestJsLogger Sentry.captureMessage failure`, e);
     }

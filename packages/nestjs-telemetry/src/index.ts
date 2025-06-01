@@ -19,20 +19,21 @@ import {
 } from './logger';
 
 export * from './prisma';
+
 export {
-  ContextAttributes,
-  ILogger,
-  LogLevel,
-  LoggerConfiguration,
   NestjsLogger,
   NestjsLoggingModule,
   NestjsSentryModule,
   SamplingContext,
   SentryExceptionFilter,
-  SentryOptions,
   SentryService,
   SentryTransaction,
   SetUserToSentryMiddleware,
   getLogContext,
   initSentryServerless,
+  type ContextAttributes,
+  type ILogger,
+  type LogLevel,
+  type LoggerConfiguration,
+  type SentryOptions,
 };

@@ -1,13 +1,24 @@
-import * as Sentry from '@sentry/node';
+import { beforeEach, describe, it, expect, vi } from 'vitest'
+import * as Sentry from '@sentry/nestjs';
 
 import { SetUserToSentryMiddleware } from './sentry.middleware';
 import { SentryService } from './sentry.service';
+
+vi.mock('@sentry/nestjs', async () => {
+
+const original = await vi.importActual('@sentry/nestjs');
+  return {
+    __esModule: true,
+    ...original,
+    setTag: vi.fn().mockImplementation(() => {})
+  };
+});
 
 describe('SetUserToSentryMiddleware', () => {
   let service: SetUserToSentryMiddleware;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
 
     service = new SetUserToSentryMiddleware();
     SentryService.headersToTags = {
@@ -22,18 +33,18 @@ describe('SetUserToSentryMiddleware', () => {
   });
 
   it('should canActivate', () => {
-    const spy = jest.spyOn(Sentry, 'setTag');
+    const spy = vi.spyOn(Sentry, 'setTag');
 
     const result = service.use(
       {
-        get: jest.fn().mockReturnValue('testHeaderUserId'),
+        get: vi.fn().mockReturnValue('testHeaderUserId'),
         auth: {
           testUserId: 'testUserId',
           email: 'email',
         },
       } as any,
       {} as any,
-      jest.fn(),
+      vi.fn(),
     );
 
     expect(result).toBeUndefined();
@@ -41,37 +52,37 @@ describe('SetUserToSentryMiddleware', () => {
   });
 
   it('should canActivate2', () => {
-    const spy = jest.spyOn(Sentry, 'setTag');
+    const spy = vi.spyOn(Sentry, 'setTag');
 
     const result = service.use(
       {
-        get: jest.fn().mockReturnValue('testHeaderUserId'),
+        get: vi.fn().mockReturnValue('testHeaderUserId'),
         auth: {
           testUserId: 'testUserId',
           email: 'email',
         },
       } as any,
       {} as any,
-      jest.fn(),
+      vi.fn(),
     );
 
     expect(result).toBeUndefined();
     expect(spy).toHaveBeenCalled();
   });
 
-  it('should canActivate 3', () => {
-    const spy = jest.spyOn(Sentry, 'setTag');
+  it('should canActivate 3, do not call set tags', () => {
+    const spy = vi.spyOn(Sentry, 'setTag');
 
     const result = service.use(
       {
-        get: jest.fn().mockReturnValue(null),
+        get: vi.fn().mockReturnValue(null),
         auth: {},
       } as any,
       {} as any,
-      jest.fn(),
+      vi.fn(),
     );
 
     expect(result).toBeUndefined();
-    expect(spy).toHaveBeenCalled();
+    expect(spy).not.toHaveBeenCalled();
   });
 });

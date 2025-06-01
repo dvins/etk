@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/nestjs';
 import { SentryService } from './sentry.service';
 
 type NextFunction = (error?: Error | any) => void;

@@ -1,6 +1,7 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing';
 import { AsyncLocalStorage } from 'async_hooks';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from 'vitest-mock-extended';
 import { ClsService } from 'nestjs-cls';
 import { Logger } from 'winston';
 
@@ -12,10 +13,10 @@ import { LOGGER_CONFIG, LOGGER_PROVIDER } from './logger.constants';
 describe('Logger', () => {
   let logger: NestjsLogger;
   const defaultLogger = mockDeep<Logger>({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    apply: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    apply: vi.fn(),
     child: () => defaultLogger,
   } as any);
   const config: LoggerConfiguration = {
@@ -86,7 +87,7 @@ describe('Logger', () => {
   });
 
   it('should log context', () => {
-    const spy = jest.spyOn(logger, 'apply');
+    const spy = vi.spyOn(logger, 'apply');
     const context = { tenantId: 'tenantId-1' };
 
     logger.error('error', context);
@@ -95,7 +96,7 @@ describe('Logger', () => {
   });
 
   it('should log context, without non context fields', () => {
-    const spy = jest.spyOn(logger, 'apply');
+    const spy = vi.spyOn(logger, 'apply');
     const context = { tenantId: 'tenantId-1' };
 
     logger.error('error-msg', { ...context, foo: 'bar' });
@@ -111,7 +112,7 @@ describe('Logger', () => {
     localStorage.run(globalContext, () => {
       logger = new NestjsLogger(defaultLogger, config, localStorageService);
 
-      const spy = jest.spyOn(logger, 'apply');
+      const spy = vi.spyOn(logger, 'apply');
       const context = { tenantId: 'tenantId-1' };
 
       logger.error('error-msg', { ...context, foo: 'bar' });
@@ -126,7 +127,7 @@ describe('Logger', () => {
   });
 
   it('should close logger', () => {
-    const spy = jest.spyOn(logger, 'close');
+    const spy = vi.spyOn(logger, 'close');
 
     logger.close();
 

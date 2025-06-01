@@ -1,8 +1,9 @@
 import * as SentryServerless from '@sentry/aws-serverless';
-import { ErrorEvent, EventHint } from '@sentry/node';
+import { ErrorEvent, EventHint } from '@sentry/core';
 import { NodeOptions } from '@sentry/node';
 import { SentryService } from './sentry.service';
 import { SentryOptions } from './sentry.interfaces';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 export function initSentryServerless(options: SentryOptions) {
   try {
@@ -13,6 +14,7 @@ export function initSentryServerless(options: SentryOptions) {
         return event;
       },
       integrations: [
+        nodeProfilingIntegration(),
         SentryServerless.httpIntegration({ breadcrumbs: true }),
         SentryServerless.graphqlIntegration(),
         SentryServerless.postgresIntegration(),

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
-import { Event, ScopeData, TransactionEvent } from '@sentry/types';
+import * as Sentry from '@sentry/nestjs';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { Event, ScopeData, TransactionEvent } from '@sentry/core';
 import { configure as stringifyConfigure } from 'safe-stable-stringify';
 
 import { SentryOptions } from './sentry.interfaces';
@@ -28,7 +29,12 @@ export class SentryService {
       beforeSendTransaction: (event: TransactionEvent) => {
         // Update graphql request transaction name
         if (event.request && event.transaction === 'POST /graphql') {
-          const { requestType, operationName } = getApolloOperationData(JSON.parse(event.request?.data || {})?.query);
+          const graphqlData = event.request?.data
+            ? JSON.parse(event.request.data as string)
+            : {};
+
+          const { requestType, operationName } = getApolloOperationData(graphqlData?.query);
+
           if (requestType && operationName) {
             const transactionName = `${requestType} /${operationName}`;
             event.transaction = transactionName;
@@ -42,6 +48,7 @@ export class SentryService {
       },
       integrations: [
         // Other integrations automatically detected
+        nodeProfilingIntegration(),
         Sentry.prismaIntegration(),
         Sentry.redisIntegration(),
         Sentry.extraErrorDataIntegration({ depth: 6 }),
@@ -50,10 +57,6 @@ export class SentryService {
     });
 
     console.info('Sentry initialized');
-  }
-
-  static setupNestErrorHandler(app: any, filter: any) {
-    Sentry.setupNestErrorHandler(app, filter);
   }
 
   getScopeData(): ScopeData {

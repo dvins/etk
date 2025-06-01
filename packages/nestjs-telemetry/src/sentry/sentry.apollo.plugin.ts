@@ -12,7 +12,7 @@ export class SentryApolloPlugin implements ApolloServerPlugin {
 
     if (requestType && operationName) {
       const transactionName = `${requestType} /${operationName}`;
-      Sentry.setTag('kind', requestType);
+      Sentry.getCurrentScope().setTag('kind', requestType);
       Sentry.getCurrentScope().setTransactionName(transactionName);
 
       const currentSpan = Sentry.getActiveSpan();

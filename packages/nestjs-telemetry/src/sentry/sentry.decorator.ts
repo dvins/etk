@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { extractTraceparentData } from '@sentry/utils';
+import { extractTraceparentData } from '@sentry/core';
 import { SENTRY_MODULE_OPTIONS, SENTRY_TOKEN } from './sentry.constants';
 
 export const InjectSentry = () => Inject(SENTRY_TOKEN);

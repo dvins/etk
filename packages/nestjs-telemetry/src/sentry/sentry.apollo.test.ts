@@ -1,3 +1,4 @@
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { SentryApolloPlugin } from './sentry.apollo.plugin';
@@ -18,12 +19,12 @@ describe('SentryApolloPlugin', () => {
 
   it('should requestDidStart', () => {
     const application = {
-      getHttpAdapter: jest.fn().mockImplementation(() => ({
-        getInstance: jest.fn().mockImplementation(() => ({
-          use: jest.fn(),
+      getHttpAdapter: vi.fn().mockImplementation(() => ({
+        getInstance: vi.fn().mockImplementation(() => ({
+          use: vi.fn(),
         })),
       })),
-      useGlobalInterceptors: jest.fn(),
+      useGlobalInterceptors: vi.fn(),
     } as unknown as INestApplication;
 
     const result = service.requestDidStart({

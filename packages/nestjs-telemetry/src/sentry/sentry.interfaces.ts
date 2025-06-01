@@ -1,7 +1,8 @@
 import { Type, Abstract } from '@nestjs/common';
-import { Options, SamplingContext } from '@sentry/types';
+import type { NodeOptions } from '@sentry/node';
+import { SamplingContext } from '@sentry/core';
 
-export interface SentryOptions extends Options {
+export interface SentryOptions extends NodeOptions {
   tags?: { [key: string]: string };
   prismaPostgresProvider?: Type<any> | Abstract<any> | string | symbol;
   contextArgumentsToTags?: Array<string>;

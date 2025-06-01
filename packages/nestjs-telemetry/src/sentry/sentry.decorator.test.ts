@@ -1,13 +1,14 @@
+import { describe, it, expect, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing';
 import { Injectable, type Logger } from '@nestjs/common';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from 'vitest-mock-extended';
 
 import { SentryTransaction } from './sentry.decorator';
 import { NestjsLogger, type LoggerConfiguration } from '../logger';
 
 
-jest.mock('@sentry/node', () => {
-  const original = jest.requireActual('@sentry/node');
+vi.mock('@sentry/node', async () => {
+  const original = await vi.importActual('@sentry/node');
 
   return {
     ...original,
@@ -17,10 +18,10 @@ jest.mock('@sentry/node', () => {
 describe('Sentry Decorators', () => {
   let logger: NestjsLogger;
   const defaultLogger = mockDeep<Logger>({
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-    apply: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    apply: vi.fn(),
     child: () => defaultLogger,
   } as any);
 
