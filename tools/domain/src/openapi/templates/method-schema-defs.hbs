@@ -1,0 +1,53 @@
+{{#each paths as |path|}}
+  {{#each path as |method|}}
+    {{#if (defined method.requestBody)}}
+      {{#if (defined method.requestBody.content.[application/json])}}
+        {{#with method.requestBody.content.[application/json].schema}}
+          const {{{ getSchemaName }}} = {{>zodSchema}};
+          export type {{{ getSchemaTypeName }}} = z.infer<typeof {{{ getSchemaName }}}>
+        {{/with}}
+      {{/if}}
+      {{#if (defined method.requestBody.content.[multipart/form-data])}}
+        {{#with method.requestBody.content.[multipart/form-data].schema}}
+          const {{{ getSchemaName }}} = {{>zodSchema}};
+          export type {{{ getSchemaTypeName }}} = z.infer<typeof {{{ getSchemaName }}}>
+        {{/with}}
+      {{/if}}
+    {{/if}}
+    {{#if (defined method.responses)}}
+      {{#each method.responses as |response|}}
+        {{#with response.content.[application/json].schema }}
+          const {{{ getSchemaName }}} = {{>zodSchema}};
+          export type {{{ getSchemaTypeName }}} = z.infer<typeof {{{ getSchemaName }}}>
+        {{/with}}
+      {{/each}}
+    {{/if}}
+    {{#if (defined parameters)}}
+      {{#each parameters as |parameter|}}
+        {{#with parameter.schema}}
+          const {{{ getSchemaName }}} = {{>zodSchema}}
+        {{/with}}
+        {{#if (defined parameter.required)}}
+          {{#if (eq parameter.required false)}}
+            .optional()
+          {{/if}}
+        {{else}}
+            .optional()
+        {{/if}};
+        {{#with parameter.schema}}
+          export type {{{ getSchemaTypeName }}} = z.infer<typeof {{{ getSchemaName }}}>
+        {{/with}}
+      {{/each}}
+      {{! create also a schema for all the parameters }}
+      {{#if (defined parameters)}}
+        export const {{{ getParametersSchemaName }}} = z.object({
+          {{#each parameters as |parameter|}}
+            {{#with parameter.schema}}
+              {{ safeParameterName parameter.name }}: {{{ getSchemaName }}},
+            {{/with}}
+          {{/each}}
+        })
+      {{/if}}
+    {{/if}}
+  {{/each}}
+{{/each}}

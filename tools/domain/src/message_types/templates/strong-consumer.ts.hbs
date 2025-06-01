@@ -1,0 +1,180 @@
+/** --[ Strong Consumers ]-------------------------------- */
+
+{{#consumers}}
+  import { {{definitionName}}, } from '../index';
+{{/consumers}}
+
+{{#consumers}}
+  /**
+   * {{ interface }}Queue
+   *
+   * - queueId: `{{ definition.queueId }}`
+   *
+   * {{ definition.description }}
+   * @interface {{ name }}Queue
+   */
+  export interface {{ interface }}Queue extends {{ interfaceType }}<
+    typeof {{ definitionName }},
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      IMessage
+    {{/if}}
+  > { }
+
+  /**
+   * {{ name }}Queue
+   *
+   * - queueId: `{{ definition.queueId }}`
+   *
+   * {{ definition.description }}
+   * @interface {{ name }}Queue
+   */
+  @Injectable()
+  export class {{ name }}Queue extends {{ type }}<
+    typeof {{ definitionName }},
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      IMessage
+    {{/if}}
+  > implements {{ interface }}Queue {
+    definition = {{ definitionName }};
+    static definition = {{ definitionName }};
+
+    constructor(
+      @InjectQueue(Messaging.Queue.Consumer.{{ nameBase }}) queue: Queue,
+      @Inject(Providers.ILogger) logger: ILogger,
+      @Optional() jobsOptions?: JobsOptions,
+    ) {
+      const { queueLogger } = setMessageQueueTelemetry(logger, {{ definitionName }});
+      super(queue, queueLogger, jobsOptions);
+    }
+  }
+
+  /**
+   * Abstract{{ name }}Processor
+   *
+   * - queueId: `{{ definition.queueId }}`
+   * - type:    `{{ definition.gatewayType }}`
+   *
+   * {{ definition.description }}
+   *
+   * @interface Abstract{{ name }}Processor
+   */
+  @Injectable()
+  @Processor(Messaging.Queue.Consumer.{{ nameBase }}, {
+  {{#if definition.workerOptions}}
+    {{#each definition.workerOptions}}
+        {{#if (eq @key 'limiter')}}
+          limiter: {
+            {{#each ../definition.workerOptions.limiter}}
+              {{@key}}: {{this}},
+            {{/each}}
+          },
+        {{~else if (eq @key 'removeOnComplete')}}
+           removeOnComplete: {
+            {{#each ../definition.workerOptions.removeOnComplete}}
+              {{@key}}: {{this}},
+            {{/each}}
+          },
+        {{~else if (eq @key 'removeOnFail')}}
+          removeOnFail: {
+            {{#each ../definition.workerOptions.removeOnFail}}
+              {{@key}}: {{this}},
+            {{/each}}
+          },
+        {{~else}} {{@key}}: {{this}},
+        {{/if}}
+    {{/each}}
+  {{/if}}
+  {{#unless definition.workerOptions.removeOnComplete}}
+    removeOnComplete: {
+      count: 1000,
+    },
+  {{/unless}}
+  {{#unless definition.workerOptions.maxStalledCount}}
+    maxStalledCount: 1,
+  {{/unless}}
+  {{#unless definition.workerOptions.stalledInterval}}
+    stalledInterval: 30000,
+  {{/unless}}
+  })
+  export abstract class Abstract{{ name }}Processor extends TrackedQueueProcessor<
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      IMessage
+    {{/if}}
+  > {
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        {{#with message}}
+          abstract on{{ name }}(
+            logger: ILogger,
+            context: IMessageHandlerContext<{{ interface }}>
+          ): Promise<any>
+        {{/with}}
+      {{/each}}
+    {{/if}}
+
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        {{#with message}}
+          @SentryTransaction({ name: 'on{{ name }}', op: '{{ ../../nameBase }}' })
+          private async _on{{ name }}(
+            logger: ILogger,
+            context: IMessageHandlerContext<{{ interface }}>
+          ): Promise<any> {
+            return this.on{{ name }}(logger, context);
+          }
+        {{/with}}
+      {{/each}}
+    {{/if}}
+
+    constructor(
+      {{#each outboundQueues}}
+        readonly {{ instance }}: {{ name }},
+      {{/each}}
+    ) {
+      super();
+
+      this.messageRouter = {
+        route: async (
+          logger: ILogger,
+          {{#if inboundBindings}}
+            context: IMessageHandlerContext<
+              {{#each inboundBindings}}
+                | {{ message.interface }}
+              {{/each}}
+            >
+          {{else}}
+            context: IMessageHandlerContext<IMessage>
+          {{/if}},
+        ) => {
+          const { job } = context;
+          switch(job.name) {
+            {{#if inboundBindings}}
+              {{#each inboundBindings}}
+                {{#with message}}
+                  case {{ definitionName }}.cloudEvent.type:
+                    return this._on{{ name }}(logger, context as IMessageHandlerContext<{{ interface }}>);
+                {{/with}}
+              {{/each}}
+            {{/if}}
+            default:
+              const logMsg = `{{ name }}Processor cannot route: ${job.name}`;
+              logger.info(logMsg, { queue: { queueId: '{{ definition.queueId }}', type: '{{ definition.gatewayType }}' }});
+          }
+        }
+      }
+    }
+  }
+
+{{/consumers}}

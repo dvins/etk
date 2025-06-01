@@ -1,0 +1,70 @@
+/** --[ Imports - Messaging ]-------------------------------- */
+
+import {
+  InjectQueue,
+  BullModule,
+  Processor,
+  OnQueueEvent,
+  QueueEventsListener,
+  QueueEventsHost,
+} from '@nestjs/bullmq';
+
+import {
+  Inject,
+  Injectable,
+  Module,
+  Optional,
+} from '@nestjs/common';
+
+import {
+  ConfigModule,
+  ConfigService,
+  RedisConfigSchema,
+} from '@omedym/nestjs-config';
+
+import { ILogger } from '@omedym/nestjs-telemetry';
+
+import {
+  AbstractCommandGateway,
+  AbstractEventGateway,
+  AbstractMessageConsumer,
+  AbstractMessageExchange,
+  AbstractMessageBuilder,
+  AbstractTaskGateway,
+  ICommand,
+  ICommandGateway,
+  ICommandGatewayDefinition,
+  ICommandMetadata,
+  IEvent,
+  IEventGateway,
+  IEventGatewayDefinition,
+  IEventMetadata,
+  IMessage,
+  IMessageConsumer,
+  IMessageDefinition,
+  IMessageHandlerContext,
+  IQueryMetadata,
+  ITask,
+  ITaskGateway,
+  ITaskGatewayDefinition,
+  ITaskMetadata,
+  Providers,
+  TrackedJobEventProcessor,
+  TrackedJobEventQueue,
+  TrackedQueueProcessor,
+  setMessageQueueTelemetry,
+} from '@omedym/nestjs-dmq';
+
+import {
+  LoggingModule,
+  NestjsLogger,
+  SentryModule,
+  SentryTransaction,
+} from '@omedym/nestjs-telemetry';
+
+import {
+  DelayedError,
+  Job,
+  JobsOptions,
+  Queue,
+} from 'bullmq';

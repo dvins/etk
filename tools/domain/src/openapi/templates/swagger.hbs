@@ -1,0 +1,17 @@
+ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+export const setupSwaggerUi = (app: any) => {
+  const options = new DocumentBuilder()
+    .setTitle(`{{{ info.title }}}`)
+    {{#if (defined info.description)}}
+    .setDescription(`{{{ info.description }}}`)
+    {{/if}}
+    {{#if (defined info.version)}}
+    .setVersion('{{{ info.version }}}')
+    {{/if}}
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api-docs', app, document);
+}
+

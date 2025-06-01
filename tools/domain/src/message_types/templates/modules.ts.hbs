@@ -1,0 +1,38 @@
+/** --[ Modules ]-------------------------------- */
+
+/**
+ * Provides support for publishing messages to any queue.
+ */
+@Module(
+{
+  imports: [
+    LoggingModule,
+    BullModule.registerQueueAsync({ name: Providers.TrackedJobEventQueue }),
+    {{#queues.gateways}}
+      BullModule.registerQueueAsync({ name: Messaging.Queue.Gateway.{{ nameBase }} }),
+    {{/queues.gateways}}
+    {{#queues.consumers}}
+      BullModule.registerQueueAsync({ name: Messaging.Queue.Consumer.{{ nameBase }} }),
+    {{/queues.consumers}}
+  ],
+  providers: [
+    { provide: Providers.ILogger, useClass: NestjsLogger },
+    TrackedJobEventQueue,
+    {{#queues.gateways}}
+      {{ name }}Queue,
+    {{/queues.gateways}}
+    {{#queues.consumers}}
+      {{ name }}Queue,
+    {{/queues.consumers}}
+  ],
+  exports: [
+    TrackedJobEventQueue,
+    {{#queues.gateways}}
+      {{ name }}Queue,
+    {{/queues.gateways}}
+    {{#queues.consumers}}
+      {{ name }}Queue,
+    {{/queues.consumers}}
+  ]
+})
+export class PublishAnyDomainMessageModule {}

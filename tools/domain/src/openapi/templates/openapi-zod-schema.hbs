@@ -1,0 +1,84 @@
+{{#if (defined enum)}}{{#if (defined $type)}}z.nativeEnum({{ $type }}){{else}}z.enum([
+    {{#each enum}}
+    '{{this}}',
+  {{/each}}
+  ])
+  {{/if}}
+{{! TODO: here we use the same code for `anyOf`, this is usually harmless}}
+{{! but strictly speaking `oneOf` will fail if the object matches more than one}}
+{{! schema, but `anyOf` wont. If we have overlapping types this may be an issue}}
+{{~else if (defined oneOf)}}z.union([
+  {{#each oneOf}}
+    {{>zodSchema }},
+  {{/each}}
+])
+{{~else if (defined anyOf)}}z.union([
+  {{#each anyOf}}
+    {{>zodSchema }},
+  {{/each}}
+])
+{{~else if (defined allOf)}}
+  {{#each allOf}}
+    {{>zodSchema }}{{#unless @last}}.merge({{/unless}}
+  {{/each}}
+  {{#each allOf}}
+    {{#unless @last}}){{/unless}}
+  {{/each}}
+{{~else if (isNullable type)}}
+  z.{{ toZodType (getNullableType type) }}().nullable()
+{{~else if (isUnionType type)}}z.union([
+  {{#each type}}
+    z.{{ toZodType this }}(
+    {{!-- check if is an array --}}
+    {{#if (eq this 'array')}}
+      {{#if (defined ../items)}}
+        z.{{ toZodType ../items.type }}()
+      {{/if}}
+    {{/if}}),
+  {{/each}}
+  ])
+{{~else if (eq format 'date-time')}}z.union([z.date(), z.string().datetime()])
+{{~else}}z.{{ toZodType type }}(
+  {{!-- check if is an array --}}
+  {{#if (eq type 'array')}}
+    {{#if (defined items)}}
+      {{{ renderZod items }}}
+    {{/if}}
+  {{/if}}
+  {{!-- check if is an object --}}
+  {{#if (eq type 'object')}}{
+      {{#each properties}}
+        '{{@key}}': {{{ renderZod this }}}
+          {{#if (optional @key ../required)}}.optional(){{/if}},
+      {{/each}} }
+  {{/if}}
+){{/if}}
+{{!-- string constrains --}}
+{{#if (eq format 'date-time')}}
+{{!-- string constrains --}}
+{{else if (eq type 'string')}}
+  {{#if (defined format)}}
+    {{#if (eq format 'binary')}}
+    {{else}}
+      .{{ toZodFormat format }}()
+    {{/if}}
+  {{/if}}
+  {{#if (defined pattern)}}
+    .refine((value) => /{{pattern}}/.test(value))
+  {{/if}}
+  {{#if (defined maxLength)}}
+    .max({{maxLength}})
+  {{/if}}
+  {{#if (defined minLength)}}
+    .min({{minLength}})
+  {{/if}}
+{{/if}}
+{{!-- array constrains --}}
+{{#if (eq type 'array')}}
+  {{#if (defined maxItems)}}
+    .max({{maxItems}})
+  {{/if}}
+  {{#if (defined minItems)}}
+    .min({{minItems}})
+  {{/if}}
+{{/if}}

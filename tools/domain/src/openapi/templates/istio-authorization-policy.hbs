@@ -1,0 +1,37 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{append '' '{{'}} .Values.appName {{append '' '}}'}}-{{append '' '{{'}} .Values.namespace {{append '' '}}'}}-policy"
+  namespace: "istio-system"
+
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: istio-ingressgateway
+  rules:
+    # by default we require all paths to be protected
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      to:
+        - operation:
+            hosts: ["{{append '' '{{'}} .Values.host {{append '' '}}'}}"]
+            paths: ["/{{append '' '{{'}} .Values.appName {{append '' '}}'}}*"]
+    - to:
+        # allow unauthenticated preflight requests
+        - operation:
+            methods:
+              - OPTIONS
+      {{#if unprotected}}
+        # list of operations that do not require authentication
+        {{#each unprotected}}
+        - operation:
+            hosts: ["{{append '' '{{'}} .Values.host {{append '' '}}'}}"]
+            methods:
+              - {{ this.method }}
+            paths:
+              - /{{append '' '{{'}} .Values.appName {{append '' '}}'}}{{ getIstioPathFromOpenAPI this.path }}
+        {{/each}}
+      {{/if}}
+

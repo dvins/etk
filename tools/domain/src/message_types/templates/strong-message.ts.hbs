@@ -1,0 +1,58 @@
+/** --[ Strong Messages ]-------------------------------- */
+
+{{#messages}}
+  import { {{definitionName}}, {{interface}}, {{dataInterface}}, } from '../index';
+{{/messages}}
+
+
+{{#messages}}
+  // import { default as {{name}}JsonSchema } from './{{ messageType }}s/{{ name }}.schema.json';
+{{/messages}}
+
+{{#messages}}
+  /**
+   * {{name}}
+   *
+   * - type: `{{definition.cloudEvent.type}}`
+   * - messageType: `{{definition.messageType}}`
+   */
+  export class {{name}} extends AbstractMessageBuilder<
+    {{dataInterface}},
+    {{metadataInterface}},
+    {{interface}}
+  > {
+    definition = {{ definitionName}};
+    static definition = {{definitionName}};
+
+    schema = {{name}}JsonSchema;
+
+    static with(
+      tenantId: string,
+      source: string,
+      data: {{dataInterface}},
+    ) {
+      return new this().with(tenantId, source, data);
+    }
+
+    static decrypt(
+      message: {{interface}},
+      secretKey: string,
+    ): {{interface}} {
+      return new this().decrypt(message, secretKey);
+    }
+
+    static verify(
+      message: {{interface}},
+    ) {
+      return new this().verify(message);
+    }
+
+    static validate(
+      message: {{interface}},
+      opts: { throwOnError: boolean } = { throwOnError: false }
+    ) {
+      return new this().validate(message, opts);
+    }
+  }
+
+{{/messages}}

@@ -1,0 +1,57 @@
+
+function create{{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard(): new () => CanActivate {
+  @Injectable()
+  class {{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard {
+    constructor() {}
+
+    canActivate(context: ExecutionContext) {
+      const request = context.switchToHttp().getRequest();
+      {{#each parameters as |parameter|}}
+        {{#with parameter.schema}}
+          const {{ safeParameterName parameter.name }} = {{{ readParameterFromRequest parameter }}};
+        {{/with}}
+      {{/each}}
+
+      const result = z.object({
+        {{#if (defined requestBody)}}
+          {{#if (defined requestBody.content.[application/json])}}
+            {{#with requestBody.content.[application/json].schema}}
+              body: {{{ getSchemaName }}},
+            {{/with}}
+          {{else if (defined requestBody.content.[multipart/form-data])}}
+            {{#with requestBody.content.[multipart/form-data].schema}}
+              body: {{{ getSchemaName }}},
+            {{/with}}
+          {{/if}}
+        {{/if}}
+        {{#if (defined parameters)}}
+          parameters: {{{ getParametersSchemaName }}}
+        {{/if}}
+        }).safeParse({
+          {{#if (defined requestBody)}}
+            body: request.body,
+          {{/if}}
+          {{#if (defined parameters)}}
+            parameters: {
+              {{#each parameters as |parameter|}}
+                {{ safeParameterName parameter.name }},
+              {{/each}}
+            }
+          {{/if}}
+        })
+
+      if (!result.success) {
+        throw new ZodValidationException(result.error);
+      }
+
+      return true;
+    }
+  }
+
+  return {{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard;
+}
+
+const {{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard = create{{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard();
+
+const Use{{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard = () =>
+  UseGuards(new {{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard());

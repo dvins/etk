@@ -1,0 +1,164 @@
+/**
+{{#if description}}
+* {{ firstLetterUpperCase description }}
+{{/if}}
+*/
+{{#if (isEmptyArray security)}}
+  @AllowUnauthorizedRequest()
+{{/if}}
+{{#if (defined parameters)}}
+  {{#each parameters as |parameter|}}
+    {{#with parameter.schema}}
+      {{#if (eq parameter.in "header")}}
+      @ApiHeader({
+        name: "{{ parameter.name }}",
+        schema: { type: 'string' }
+      })
+      {{/if}}
+      {{#if (eq parameter.in "query")}}
+      @ApiQuery({
+        name: "{{ parameter.name }}"
+      })
+      {{/if}}
+    {{/with}}
+  {{/each}}
+{{/if}}
+{{#if (defined requestBody)}}
+  @ApiBody({
+    {{#if (defined requestBody.content.[application/json])}}
+      schema: {{{ patchApiBodySchema requestBody.content.[application/json].schema }}},
+    {{/if}}
+    {{#if (defined requestBody.content.[multipart/form-data])}}
+      schema: {{{ patchApiBodySchema requestBody.content.[multipart/form-data].schema }}},
+    {{/if}}
+    {{#if (defined requestBody.description)}}
+      description: "{{{ requestBody.description }}}",
+    {{/if}}
+  })
+{{/if}}
+{{#if (defined responses)}}
+  {{#each responses as |response|}}
+    @ApiResponse({{{ getApiResponse response @key }}})
+  {{/each}}
+{{/if}}
+@{{ firstLetterUpperCase httpMethod }}("{{ toNestJSPath path }}")
+  {{#if (defined requestBody)}}
+    {{#if (defined requestBody.content.[multipart/form-data])}}
+      @UseInterceptors(FileInterceptor('{{ getFileName }}'))
+    {{/if}}
+  {{/if}}
+{{! here we add the validation code }}
+@Use{{ firstLetterUpperCase (buildMethodName httpMethod path parameters operationId) }}ZodGuard()
+async {{ buildMethodName httpMethod path parameters operationId }}
+(
+  {{#if (defined requestBody)}}
+    {{#if (defined requestBody.content.[application/json])}}
+      {{#with requestBody.content.[application/json].schema}}
+        @Body() body: {{{ getSchemaTypeName }}},
+      {{/with}}
+    {{/if}}
+    {{#if (defined requestBody.content.[multipart/form-data])}}
+      {{#with requestBody.content.[multipart/form-data].schema}}
+        @Body() body: {{{ getSchemaTypeName }}},
+        @UploadedFile() file: Express.Multer.File,
+      {{/with}}
+    {{/if}}
+    {{#if (defined requestBody.content.[text/plain])}}
+      {{#with requestBody.content.[text/plain].schema}}
+        @Body() body: string,
+      {{/with}}
+    {{/if}}
+  {{/if}}
+  {{#if (isEmptyArray security)}}
+    {{!-- security: [] means no auth --}}
+    @Req() request: UnauthenticatedRequest,
+  {{else if security}}
+    {{#each security as |sec|}}
+      {{#if @first}}
+        {{else if (hasAuthScheme sec "UserAuth")}}
+          @Req() request: AuthenticatedUserRequest,
+        {{else if (hasAuthScheme sec "BearerAuth")}}
+          @Req() request: AuthenticatedRequest,
+        {{else}}
+          @Req() request: AuthenticatedRequest,
+        {{/if}}
+      {{/if}}
+    {{/each}}
+  {{else if @root.security}}
+    {{#each @root.security as |sec|}}
+      {{#if @first}}
+        {{else if (hasAuthScheme sec "UserAuth")}}
+          @Req() request: AuthenticatedUserRequest,
+        {{else if (hasAuthScheme sec "BearerAuth")}}
+          @Req() request: AuthenticatedRequest,
+        {{else}}
+          @Req() request: AuthenticatedRequest,
+        {{/if}}
+      {{/if}}
+    {{/each}}
+  {{else}}
+    @Req() request: AuthenticatedRequest,
+  {{/if}}
+  @Res() response: Response,
+){
+  {{#each parameters as |parameter|}}
+    {{#with parameter.schema}}
+      const {{ safeParameterName parameter.name }} = {{{ readParameterFromRequest parameter }}};
+    {{/with}}
+  {{/each}}
+
+  // execute the request and return the result
+  const { status, payload, headers } = await this.handler.{{ buildMethodName @key @../key method.parameters operationId }}(
+    {{#if (isEmptyArray security)}}
+      {{!-- No parameter emitted --}}
+    {{else if security}}
+      {{#each security as |sec|}}
+        {{#if @first}}
+          {{else if (hasAuthScheme sec "UserAuth")}}
+            request.auth!,
+          {{else if (hasAuthScheme sec "BearerAuth")}}
+            request.auth!,
+          {{else}}
+            request.auth!,
+          {{/if}}
+        {{/if}}
+      {{/each}}
+    {{else if (isEmptyArray @root.security)}}
+      {{!-- No parameter emitted --}}
+    {{else if @root.security}}
+      {{#each @root.security as |sec|}}
+        {{#if @first}}
+          {{else if (hasAuthScheme sec "UserAuth")}}
+            request.auth!,
+          {{else if (hasAuthScheme sec "BearerAuth")}}
+            request.auth!,
+          {{else}}
+            request.auth!,
+          {{/if}}
+        {{/if}}
+      {{/each}}
+    {{else}}
+      request.auth!,
+    {{/if}}
+    {{#if (defined requestBody)}}
+      body,
+      {{#if (defined requestBody.content.[multipart/form-data])}}
+        file,
+      {{/if}}
+    {{/if}}
+      {{#each parameters as |parameter|}}
+        {{ safeParameterName parameter.name }},
+      {{/each}}
+    );
+
+    // Set any headers if they were returned
+    if (headers) {
+      Object.entries(headers).forEach(([key, value]) => {
+        if (value !== undefined) {
+          response.setHeader(key, value);
+        }
+      });
+    }
+
+    response.status(status).json(payload)
+}

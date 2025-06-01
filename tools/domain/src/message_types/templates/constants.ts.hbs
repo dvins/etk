@@ -1,0 +1,43 @@
+/** --[ Constants - Queues ]-------------------------------- */
+
+export const QueueSuffix = REDIS_QUEUE_SUFFIX ? `-${REDIS_QUEUE_SUFFIX}` : undefined;
+
+/** Messaging Identifier Constants */
+export const Messaging = {
+  /** Messages **/
+  Message: {
+    /** Commands **/
+    Command: {
+      {{#messages.commands}}
+        {{ nameBase }}: '{{ definition.cloudEvent.type }}',
+      {{/messages.commands}}
+    },
+    /** Events **/
+    Event: {
+      {{#messages.events}}
+        {{ nameBase }}: '{{ definition.cloudEvent.type }}',
+      {{/messages.events}}
+    },
+    /** Tasks **/
+    Tasks: {
+      {{#messages.tasks}}
+        {{ nameBase }}: '{{ definition.cloudEvent.type }}',
+      {{/messages.tasks}}
+    },
+  },
+  /** Queues **/
+  Queue: {
+    /** Consumers **/
+    Consumer: {
+      {{#queues.consumers}}
+        {{nameBase}}: '{{ definition.queueId }}' + (QueueSuffix ?? ''),
+      {{/queues.consumers}}
+    },
+    /** Gateways **/
+    Gateway: {
+      {{#queues.gateways}}
+        {{ nameBase }}: '{{ definition.queueId }}' + (QueueSuffix ?? ''),
+      {{/queues.gateways}}
+    },
+  },
+};

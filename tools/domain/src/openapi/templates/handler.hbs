@@ -1,0 +1,97 @@
+export abstract class {{ buildControllerName info.title }}Handler {
+{{#each paths as |path|}}
+  {{#each path as |method|}}
+
+    /**
+    {{#if description}}
+    * {{ firstLetterUpperCase description }}
+    {{/if}}
+    {{#if (defined method.requestBody)}}
+      {{#if (defined method.requestBody.content.[application/json])}}
+    * @param { {{~{ toType schema=method.requestBody.content.[application/json].schema }~}} } body {{ method.requestBody.description }}
+      {{/if}}
+      {{#if (defined method.requestBody.content.[multipart/form-data])}}
+    * @param { {{~{ toType schema=method.requestBody.content.[multipart/form-data].schema}~}} } body {{ method.requestBody.description }}
+    * @param {Express.Multer.File} file The file uploaded.
+      {{/if}}
+      {{#if (defined method.requestBody.content.[text/plain])}}
+    * @param { {{~{ toType schema=method.requestBody.content.[text/plain].schema}~}} } body {{ method.requestBody.description }}
+      {{/if}}
+    {{/if}}
+    {{#each parameters as |parameter|}}
+    * @param { {{~toType schema=parameter.schema~}} } {{ safeParameterName parameter.name }} {{ parameter.description }}
+    {{/each}}
+    */
+    abstract {{ buildMethodName @key @../key method.parameters operationId }}(
+      {{!-- Case: method.security explicitly disables auth --}}
+      {{#if (isEmptyArray method.security)}}
+        /** No Authorization Required **/
+      {{!-- Case: method.security is defined with entries --}}
+      {{else if method.security}}
+        {{#each method.security as |sec|}}
+          {{#if @first}}
+            {{else if (hasAuthScheme sec "UserAuth")}}
+              auth: UserJwt,
+            {{else if (hasAuthScheme sec "BearerAuth")}}
+              auth: { tenantId: string, userId: string, email: string },
+            {{else}}
+              auth: { tenantId: string, userId: string, email: string },
+            {{/if}}
+          {{/if}}
+        {{/each}}
+      {{!-- Fallback to root-level security --}}
+      {{else if @root.security}}
+        {{#each @root.security as |sec|}}
+          {{#if @first}}
+            {{else if (hasAuthScheme sec "UserAuth")}}
+              auth: UserJwt,
+            {{else if (hasAuthScheme sec "BearerAuth")}}
+              auth: { tenantId: string, userId: string, email: string },
+            {{else}}
+              /** No Authorization Required **/
+            {{/if}}
+          {{/if}}
+        {{/each}}
+      {{!-- Neither method nor root security defined --}}
+      {{else}}
+        {{!-- Legacy Fallback --}}
+        auth: { tenantId: string, userId: string, email: string },
+      {{/if}}
+      {{#if (defined method.requestBody)}}
+        {{#if (defined method.requestBody.content.[application/json])}}
+          {{#with method.requestBody.content.[application/json].schema}}
+            body: {{{ getSchemaTypeName }}},
+          {{/with}}
+        {{else if (defined method.requestBody.content.[multipart/form-data])}}
+          {{#with method.requestBody.content.[multipart/form-data].schema}}
+            body: {{{ getSchemaTypeName }}},
+            file: Express.Multer.File,
+          {{/with}}
+        {{else if (defined method.requestBody.content.[text/plain])}}
+          {{#with method.requestBody.content.[text/plain].schema}}
+            body: string,
+          {{/with}}
+        {{/if}}
+      {{/if}}
+      {{#each parameters as |parameter|}}
+        {{ safeParameterName parameter.name }}:
+        {{#with parameter.schema}}
+          {{{ getSchemaTypeName }}},
+        {{/with}}
+      {{/each}}
+    )
+    {{#if (defined method.responses)}}
+    : Promise<{
+        status: HttpStatus,
+        headers?: { [key: string]: string | undefined },
+        payload: {{#each method.responses as |response|}}
+          {{#with response.content.[application/json].schema }}
+            {{{ getSchemaTypeName }}} {{#unless @last}}|{{/unless}}
+          {{/with}}
+          {{/each}}
+          }>
+    {{/if}}
+    ;
+  {{/each}}
+{{/each}}
+}

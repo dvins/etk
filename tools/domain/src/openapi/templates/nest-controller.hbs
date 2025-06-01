@@ -1,0 +1,60 @@
+import { SetMetadata } from '@nestjs/common';
+export const AllowUnauthorizedRequest = () => SetMetadata('allowUnauthorizedRequest', true);
+
+/**
+ * Generated from OpenAPI schema: {{ schema }}.
+{{#with info}}
+```
+ * Title: {{ title }}
+ * Version: {{ version }}
+{{#if (defined description)}}
+ * Description: {{ description }}
+{{/if}}
+{{#if (defined summary)}}
+ * Summary: {{ summary }}
+{{/if}}
+{{#if (defined license)}}
+ * License: 
+{{#with license }}
+{{#if (defined name)}}
+ *   Name: {{ name }}
+{{/if}}
+{{#if (defined url)}}
+ *   Url: {{ url }}
+{{/if}}
+{{/with}}
+{{/if}}
+{{#if (defined contact)}}
+ * Contact:
+{{#with contact }}
+{{#if (defined name)}}
+ *   Name: {{ name }}
+{{/if}}
+{{#if (defined email)}}
+ *   Email: {{ email }}
+{{/if}}
+{{#if (defined url)}}
+ *   Url: {{ url }}
+{{/if}}
+{{/with}}
+{{/if}}
+{{#if (defined termsOfService)}}
+ * Terms Of Service: {{ termsOfService }}
+{{/if}}
+{{/with}}```
+ */
+@Controller()
+export class {{ buildControllerName info.title }}Controller {
+
+  constructor(
+    private readonly logger: NestjsLogger,
+    private readonly handler: {{ buildControllerName info.title }}Handler,
+  ) {}
+
+  {{#each paths as |path|}}
+    {{#each path as |method|}}
+      {{> method method httpMethod=@key path=@../key}}
+    {{/each}}
+  {{/each}}
+
+}

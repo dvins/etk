@@ -1,0 +1,190 @@
+/** --[ Strong Gateways ]-------------------------------- */
+
+{{#gateways}}
+  import { {{ definitionName }}, } from '../index';
+{{/gateways}}
+
+{{#gateways}}
+  /**
+   * {{ interface }}Queue
+   *
+   * - queueId: `{{ definition.queueId }}`
+   * - type:    `{{ definition.gatewayType }}`
+   *
+   * {{ definition.description }}
+   * @interface {{ name }}Queue
+   */
+  export interface {{ interface }}Queue extends {{ interfaceType }}<
+    typeof {{ definitionName }},
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      {{ messageType }}
+    {{/if}}
+  > { }
+
+  /**
+   * {{ name }}Queue
+   *
+   * - queueId: `{{ definition.queueId }}`
+   * - type:    `{{ definition.gatewayType }}`
+   *
+   * {{ definition.description }}
+   * @interface {{ name }}Queue
+   */
+  @Injectable()
+  export class {{ name }}Queue extends {{ type }}<
+    typeof {{ definitionName }},
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      {{ messageType }}
+    {{/if}}
+  > implements {{ interface }}Queue {
+    definition = {{ definitionName }};
+    static definition = {{ definitionName }};
+
+    constructor(
+      @InjectQueue(Messaging.Queue.Gateway.{{ nameBase }}) queue: Queue,
+      @Inject(Providers.ILogger) logger: ILogger,
+      @Optional() jobsOptions?: JobsOptions,
+    ) {
+      const { queueLogger } = setMessageQueueTelemetry(logger, {{ definitionName }});
+      super(queue, queueLogger, jobsOptions);
+    }
+  }
+
+  /**
+   * {{ name }}Processor
+   *
+   * - queueId: `{{ definition.queueId }}`
+   * - type:    `{{ definition.gatewayType }}`
+   *
+   * {{ definition.description }}
+   *
+   * @interface {{ name }}Processor
+   */
+  @Injectable()
+  @Processor(Messaging.Queue.Gateway.{{ nameBase }}, {
+  {{#if definition.workerOptions}}
+    {{#each definition.workerOptions}}
+        {{#if (eq @key 'limiter')}}
+          limiter: {
+            {{#each ../definition.workerOptions.limiter}}
+              {{@key}}: {{this}},
+            {{/each}}
+          },
+        {{~else if (eq @key 'removeOnComplete')}}
+         removeOnComplete: {
+          {{#each ../definition.workerOptions.removeOnComplete}}
+            {{@key}}: {{this}},
+          {{/each}}
+        },
+        {{~else if (eq @key 'removeOnFail')}}
+          removeOnFail: {
+            {{#each ../definition.workerOptions.removeOnFail}}
+              {{@key}}: {{this}},
+            {{/each}}
+          },
+        {{~else}} {{@key}}: {{this}},
+        {{/if}}
+    {{/each}}
+  {{/if}}
+  {{#unless definition.workerOptions.removeOnComplete}}
+    removeOnComplete: {
+      count: 1000,
+    },
+  {{/unless}}
+  {{#unless definition.workerOptions.maxStalledCount}}
+    maxStalledCount: 1,
+  {{/unless}}
+  {{#unless definition.workerOptions.stalledInterval}}
+    stalledInterval: 30000,
+  {{/unless}}
+  })
+  export class {{ name }}Processor extends TrackedQueueProcessor<
+    {{#if inboundBindings}}
+      {{#each inboundBindings}}
+        | {{ message.interface }}
+      {{/each}}
+    {{else}}
+      {{ messageType }}
+    {{/if}}
+   > {
+
+    constructor(
+      {{#each outboundQueues}}
+        @Inject({{ name }}) readonly {{ instance }}: {{ interface }},
+      {{/each}}
+    ) {
+      super();
+
+      this.messageRouter = {
+        route: async (
+          logger: ILogger,
+          {{#if inboundBindings}}
+            context: IMessageHandlerContext<
+              {{#each inboundBindings}}
+                | {{ message.interface }}
+              {{/each}}
+            >
+          {{else}}
+            context: IMessageHandlerContext<IMessage>
+          {{/if}},
+        ) => {
+          const { job, message, messageDefinition, messageQueueDefinition } = context;
+
+          // Check if this job has Task metadata otherwise use its existing job.name
+          const jobName = (message.metadata as any)?.task?.name ?? job.name;
+
+          // Do not apply delay and repeat options on the next consumer queue,
+          // as it's already applied to the current queue
+          const jobOptions = {
+            ...job.opts,
+            delay: undefined,
+            repeat: undefined,
+          };
+          switch(jobName) {
+            {{#if outboundBindings}}
+              {{#each outboundBindings}}
+                case {{ message.definitionName }}.cloudEvent.type:
+                  {{#if pattern }}
+                    logger.info(`Checking topic pattern for match:{{#each toQueue }} {{ dispatcher.name }}{{/each}}`);
+                    const checkForTopicPatternMatch_{{ message.interface }}_{{@index}}= {{unescape pattern }};
+                    const isMatch_{{ message.interface }}_{{@index}} = checkForTopicPatternMatch_{{ message.interface }}_{{@index}}(message as {{ message.interface }});
+
+                    if (isMatch_{{ message.interface }}_{{@index}} === true) {
+                      {{#each toQueue}}
+                      logger.info(`Routing to: {{ dispatcher.name }}`);
+                      await this.{{ dispatcher.instance }}.{{ dispatcher.method }}(message as {{ ../message.interface }}, jobOptions);
+                      {{/each}}
+                      // Note that the break statement is utilized only if the isMatch_ condition is met.
+                      // Otherwise, proceed to the next case statement to allow multiple bindings per same message type
+                      break;
+                    }
+
+                  {{else}}
+                    {{#each toQueue}}
+                      logger.info(`Routing to: {{ dispatcher.name }}`);
+                      await this.{{ dispatcher.instance }}.{{ dispatcher.method }}(message as {{ ../message.interface }}, jobOptions);
+                    {{/each}}
+                    break;
+                  {{/if}}
+
+              {{/each}}
+            {{/if}}
+
+            default:
+              const logMsg = `{{ name }}Processor cannot route: ${jobName}`;
+              logger.info(logMsg, { queue: { queueId: '{{ definition.queueId }}', type: '{{ definition.gatewayType }}' }});
+          }
+        }
+      }
+    }
+  }
+
+{{/gateways}}
